@@ -11,7 +11,7 @@ from tqdm import tqdm
 import pandas as pd
 
 file_cnt=0;
-dp="./CA_data/CA1883"
+dp="./CA_data/CA1803"
 data_dict={}
 csv_cnt=0
 # timestamp bnum height speed angle longitude latitude
@@ -43,7 +43,7 @@ for fn in os.listdir(dp):
     csv_cnt=csv_cnt+1
     bnum=bnum+1
 print(dp)
-dp="./CA1883.pkl"
+dp="./CA1803.pkl"
 print(dp)
 print(type(data_dict))
 with open(dp,'wb') as f:
