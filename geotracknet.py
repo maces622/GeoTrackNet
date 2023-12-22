@@ -62,6 +62,7 @@ LON_RANGE = config.lon_max - config.lon_min
 
 # 分辨率设定
 FIG_DPI = 150
+# W是宽度，H是高度
 FIG_W = 960
 FIG_H = int(FIG_W*LAT_RANGE/LON_RANGE)
 

@@ -65,11 +65,14 @@ tf.app.flags.DEFINE_string("mode", "train",
                            "'contrario_detection','visualisation'"
                            "'traj_reconstruction' or 'traj_speed'.")
 
+# 用于设定使用粒子滤波器还是ELBO作为下界
 tf.app.flags.DEFINE_string("bound", "elbo",
                            "The bound to optimize. Can be 'elbo', or 'fivo'.")
 
+# 隐藏状态数目设置
 tf.app.flags.DEFINE_integer("latent_size", 64,
                             "The size of the latent state of the model.")
+
 
 tf.app.flags.DEFINE_string("log_dir", "./chkpt",
                            "The directory to keep checkpoints and summaries in.")
@@ -79,6 +82,7 @@ tf.app.flags.DEFINE_integer("batch_size", 32,
 tf.app.flags.DEFINE_integer("num_samples", 16,
                            "The number of samples (or particles) for multisample "
                            "algorithms.")
+# log likelihood 阈值
 tf.app.flags.DEFINE_float("ll_thresh", -17.47,
                           "Log likelihood for the anomaly detection.")
 
@@ -119,6 +123,8 @@ tf.app.flags.DEFINE_float("lon_min", -71.0,
                           "ROI")
 tf.app.flags.DEFINE_float("lon_max", -68.0,
                           "ROI")
+
+# 设置4-hot编码的分辨率
 tf.app.flags.DEFINE_float("onehot_lat_reso", 0.01,
                           "Resolution of the lat one-hot vector (degree)")
 tf.app.flags.DEFINE_float("onehot_lon_reso",  0.01,
@@ -132,7 +138,7 @@ tf.app.flags.DEFINE_float("onehot_cog_reso", 5,
 tf.app.flags.DEFINE_float("cell_lat_reso", 0.1,
                           "Lat resolution of each small cell when applying local thresholding")
 tf.app.flags.DEFINE_float("cell_lon_reso",  0.1,
-                          "Lon nesolution of each small cell when applying local thresholding")
+                          "Lon resolution of each small cell when applying local thresholding")
 
 tf.app.flags.DEFINE_float("contrario_eps", 1e-9,
                           "A contrario eps.")
@@ -199,6 +205,7 @@ config.onehot_lon_bins = math.ceil((config.lon_max-config.lon_min)/config.onehot
 config.onehot_sog_bins = math.ceil(SPEED_MAX/config.onehot_sog_reso)
 config.onehot_cog_bins = math.ceil(360/config.onehot_cog_reso)
 
+# 数据的总维度
 config.data_dim  = config.onehot_lat_bins + config.onehot_lon_bins\
                  + config.onehot_sog_bins + config.onehot_cog_bins # error with data_dimension
 

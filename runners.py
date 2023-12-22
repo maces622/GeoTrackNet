@@ -29,7 +29,6 @@ from data import datasets as datasets
 from models import vrnn
 import nested_utils as nested
 import distribution_utils as dists
-
 def create_eval_graph(inputs, targets, lengths, model, config):
     parallel_iterations=30
     swap_memory=True
