@@ -56,7 +56,7 @@ from flags_config import config
 # 在flags_config中已经设定了许多的预设参数
 
 
-# 下面是经度维度的范围，会根据config中的lat_max/min和lon_max/min自动计算，暂时不用再geotracknet.py中修改
+# 下面是经度维度的范围，会根据config中的lat_max/min和lon_max/min自动计算，暂时不用在geotracknet.py中修改
 LAT_RANGE = config.lat_max - config.lat_min
 LON_RANGE = config.lon_max - config.lon_min
 

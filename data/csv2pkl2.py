@@ -12,6 +12,15 @@ csv_path=os.path.join(base_path,pkl_fn)
 
 data_dict={}
 csv_cnt=0
+
+
+# 在处理数据集的时候，提取出经纬度的最值，用于config_flags.py模块设定参数
+
+lon_max=-90.0
+lon_min=90.0
+lat_max=-180
+lat_min=180
+
 # timestamp bnum height speed angle longitude latitude
 bnum=10001
 for fn in os.listdir(csv_path):
@@ -25,7 +34,10 @@ for fn in os.listdir(csv_path):
             ct=ct+1
             if ct==1:
                 continue
-            
+            lon_max=max(lon_max,float(row[7]))
+            lon_min=min(lon_min,float(row[7]))
+            lat_max=max(lat_max,float(row[8]))
+            lat_min=min(lat_min,float(row[8]))
             l_l_msg.append([int(row[0]),
                             (bnum),float(row[4]),
                             float(row[5]),float(row[6]),
@@ -68,6 +80,8 @@ test_data = {k: data_dict[k] for k in test_keys}
 # print(train_data,valid_data,test_data)
 
 # print(data_keys)
+
+#save to pkl
 output_path=os.path.join(base_path,train_pkl_fn)
 with open(output_path,'wb') as f:
     pickle.dump(train_data,f)
@@ -79,9 +93,5 @@ with open(output_path,'wb') as f:
 output_path=os.path.join(base_path,valid_pkl_fn)
 with open(output_path,'wb') as f:
     pickle.dump(valid_data,f)
-# for key in [test_pkl_fn,train_pkl_fn,valid_pkl_fn]:
-#     output_path=os.path.join(base_path,key)
-#     print(output_path)
-# with open(dp,'wb') as f:
-    # pickle.dump(data_dict,f)
 
+print(lon_max,lon_min,lat_max,lat_min)
