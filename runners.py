@@ -271,6 +271,7 @@ def wait_for_checkpoint(saver, sess, logdir):
 def run_train(config):
 
     def create_logging_hook(step, bound_value):
+        # 日志设置，此处不用修改
         """Creates a logging hook that prints the bound value periodically."""
         bound_label = config.bound + " bound"
         if config.normalize_by_seq_len:

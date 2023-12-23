@@ -70,6 +70,8 @@ FIG_H = int(FIG_W*LAT_RANGE/LON_RANGE)
 LOGPROB_MEAN_MIN = -10.0
 LOGPROB_STD_MAX = 5
 
+# done
+
 ## RUN TRAIN
 #======================================
 
@@ -80,6 +82,7 @@ if config.mode == "train":
     # get TF logger
     logger = logging.getLogger('tensorflow')
     logger.addHandler(fh)
+    # runners 执行训练步骤
     runners.run_train(config)
 
 else:
