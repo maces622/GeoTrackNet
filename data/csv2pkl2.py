@@ -1,26 +1,24 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import os
-
-import pickle
 import csv
-from datetime import datetime
-import time
-from io import StringIO
-from tqdm import tqdm
-import pandas as pd
+import pickle
+
+
 
 file_cnt=0;
-dp="./CA_data/CA1803"
+base_path="./CA_data/"
+pkl_fn="CA1803"
+csv_path=os.path.join(base_path,pkl_fn)
+
 data_dict={}
 csv_cnt=0
 # timestamp bnum height speed angle longitude latitude
 bnum=10001
-for fn in os.listdir(dp):
-    dataset_path=os.path.join(dp,fn)
+for fn in os.listdir(csv_path):
+    csv_file_path=os.path.join(csv_path,fn)
     l_l_msg=[]
     ct=0
-    with open (dataset_path,"r") as f:
+    with open (csv_file_path,"r") as f:
         
         csvReader=csv.reader(f)
         for row in csvReader:
@@ -33,19 +31,57 @@ for fn in os.listdir(dp):
                             float(row[5]),float(row[6]),
                             float(row[7]),float(row[8])])
             # print(row)
-    print(l_l_msg)
+    # print(l_l_msg)
     m_msg=np.array(l_l_msg)
-    print(m_msg)
-    print("==============================")
+    # print(m_msg)
+    # print("==============================")
     data_dict[csv_cnt]=m_msg
-    print(data_dict[csv_cnt])
-    print("--------------------------------")
+    # print(data_dict[csv_cnt])
+    # print("--------------------------------")
     csv_cnt=csv_cnt+1
     bnum=bnum+1
-print(dp)
-dp="./CA1803.pkl"
-print(dp)
+
+test_pkl_fn=pkl_fn+"_test.pkl"
+train_pkl_fn=pkl_fn+"_train.pkl"
+valid_pkl_fn=pkl_fn+"_valid.pkl"
+
 print(type(data_dict))
-with open(dp,'wb') as f:
-    pickle.dump(data_dict,f)
+
+data_keys=list(data_dict.keys())
+total_size=len(data_keys)
+total_size = len(data_keys)
+train_size = int(0.7 * total_size)
+valid_size = int(0.15 * total_size)
+
+# 打乱数据键的顺序
+np.random.shuffle(data_keys)
+
+# 分割数据键
+train_keys = data_keys[:train_size]
+valid_keys = data_keys[train_size:train_size + valid_size]
+test_keys = data_keys[train_size + valid_size:]
+
+train_data = {k: data_dict[k] for k in train_keys}
+valid_data = {k: data_dict[k] for k in valid_keys}
+test_data = {k: data_dict[k] for k in test_keys}
+
+# print(train_data,valid_data,test_data)
+
+# print(data_keys)
+output_path=os.path.join(base_path,train_pkl_fn)
+with open(output_path,'wb') as f:
+    pickle.dump(train_data,f)
+
+output_path=os.path.join(base_path,test_pkl_fn)
+with open(output_path,'wb') as f:
+    pickle.dump(test_data,f)
+
+output_path=os.path.join(base_path,valid_pkl_fn)
+with open(output_path,'wb') as f:
+    pickle.dump(valid_data,f)
+# for key in [test_pkl_fn,train_pkl_fn,valid_pkl_fn]:
+#     output_path=os.path.join(base_path,key)
+#     print(output_path)
+# with open(dp,'wb') as f:
+    # pickle.dump(data_dict,f)
 

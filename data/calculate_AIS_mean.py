@@ -62,7 +62,13 @@ def sparse_AIS_to_dense(msgs_,num_timesteps, mmsis):
 
 dirname = os.path.dirname(dataset_path)
 
+## AIS LIST
+
 LAT, LON, SOG, COG, HEADING, ROT, NAV_STT, TIMESTAMP, MMSI = list(range(9))
+
+## ADB-S LIST
+
+# TIMESTAMP,BNUM,HEIGHT,ANGLE,LON,LAT=list(range(6))
 
 try:
     with tf.gfile.Open(dataset_path, "rb") as f:
