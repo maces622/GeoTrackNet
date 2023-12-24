@@ -131,6 +131,12 @@ tf.app.flags.DEFINE_float("lon_min", 18.0,
 tf.app.flags.DEFINE_float("lon_max", 41.0,
                           "ROI")
 
+## adding the height roi
+
+tf.app.flags.DEFINE_float("hgt_min",0.0,
+                          "ROI")
+tf.app.flags.DEFINE_float("hgt_max",HEIGHT_MAX,
+                          "ROI")
 
 
 

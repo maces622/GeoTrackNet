@@ -20,7 +20,7 @@ lon_max=-90.0
 lon_min=90.0
 lat_max=-180
 lat_min=180
-
+hgt_max=0.0
 # timestamp bnum height speed angle longitude latitude
 bnum=10001
 for fn in os.listdir(csv_path):
@@ -34,10 +34,14 @@ for fn in os.listdir(csv_path):
             ct=ct+1
             if ct==1:
                 continue
+            
+            """get the max\min value for ROI"""
             lon_max=max(lon_max,float(row[7]))
             lon_min=min(lon_min,float(row[7]))
             lat_max=max(lat_max,float(row[8]))
             lat_min=min(lat_min,float(row[8]))
+            hgt_max=max(hgt_max,float(row[2]))
+
             l_l_msg.append([int(row[0]),
                             (bnum),float(row[4]),
                             float(row[5]),float(row[6]),
@@ -94,4 +98,4 @@ output_path=os.path.join(base_path,valid_pkl_fn)
 with open(output_path,'wb') as f:
     pickle.dump(valid_data,f)
 
-print(lon_max,lon_min,lat_max,lat_min)
+print(lon_max,lon_min,lat_max,lat_min,height)
