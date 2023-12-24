@@ -301,6 +301,7 @@ def run_train(config):
                                                                shuffle=True,
                                                                repeat=True)
         # Compute lower bounds on the log likelihood.
+        """"select the kind of bound (elbo/fivo)"""
         if config.bound == "elbo":
             ll_per_seq, _, _, _ = bounds.elbo(model,
                                               (inputs, targets),
