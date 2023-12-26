@@ -3,6 +3,8 @@ import os
 import csv
 import pickle
 
+from flags_config import HEIGHT_MAX
+
 
 
 file_cnt=0;
@@ -98,4 +100,4 @@ output_path=os.path.join(base_path,valid_pkl_fn)
 with open(output_path,'wb') as f:
     pickle.dump(valid_data,f)
 
-print(lon_max,lon_min,lat_max,lat_min,height)
+print(lon_max,lon_min,lat_max,lat_min,hgt_max)
