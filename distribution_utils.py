@@ -142,7 +142,7 @@ def sample_from_probs_1(probs_,lat_bins,lon_bins,height_bins,speed_bins,angle_bi
         l_new_probs = []
         for old_prob in l_old_prob:
             # 归一化处理
-            new_probs0 = old_prob/tf.reshape(tr.reduce_max(old_prob,axis=1),(-1,1))
+            new_probs0 = old_prob/tf.reshape(tf.reduce_max(old_prob,axis=1),(-1,1))
             new_probs1 = tf.where(tf.equal(new_probs0,1,),tf.ones(tf.shape(old_prob))*0.9999,new_probs0)
             l_new_probs.append(new_probs1)
         return l_new_probs
