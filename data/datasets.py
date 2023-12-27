@@ -195,7 +195,7 @@ def create_ADB_dataset(dataset_path,
                                                 speed_bins= speed_bins,
                                                 angle_bins=angle_bins))
         dense_msgs = np.array(dense_msgs)
-        return dense_msgs, num_timesteps, mmsis, time_start, time_end
+        return dense_msgs, num_timesteps, bnum, time_start, time_end
 
 
     # Load the data from disk.
@@ -208,7 +208,7 @@ def create_ADB_dataset(dataset_path,
     with open(mean_path,"rb") as f:
         mean = pickle.load(f)
 
-    def aistrack_generator():
+    def adbtrack_generator():
         for k in list(raw_data.keys()):
             # ::2表示间隔一条数据进行选取。该语句后是选出需要的四个字段。
             # TIMESTAMP,BNUM,HEIGHT,ANGLE,LON,LAT=list(range(6))
@@ -218,7 +218,7 @@ def create_ADB_dataset(dataset_path,
             yield tmp, len(tmp), raw_data[k][0,BNUM], raw_data[k][0,TIMESTAMP], raw_data[k][-1,TIMESTAMP]
             ## tmp是位置有关数据；长度；ADB-S使用bnum作为班次的识别码；开始时间戳；结束时间戳。
     dataset = tf.data.Dataset.from_generator(
-                              aistrack_generator,
+                              adbtrack_generator,
                               output_types=(tf.float64, tf.int64, tf.int64, tf.float32, tf.float32))
             
     if repeat: dataset = dataset.repeat()
