@@ -250,6 +250,7 @@ def restore_checkpoint_if_exists(saver, sess, logdir):
       logdir: The directory to look for checkpoints in.
     Returns:
       True if a checkpoint was found and restored, False otherwise.
+      训练检查点部分，不用修改
     """
     checkpoint = tf.train.get_checkpoint_state(logdir)
     if checkpoint:
@@ -299,7 +300,7 @@ def run_train(config):
                 to apply to the model. Should be optimized via gradient descent.
         """
         # 创建、计算损失函数
-        inputs, targets, mmsis, time_starts, time_ends, lengths, model = create_dataset_and_model(config,
+        inputs, targets, bnum, time_starts, time_ends, lengths, model = create_dataset_and_model(config,
                                                                shuffle=True,
                                                                repeat=True)
         # Compute lower bounds on the log likelihood.
