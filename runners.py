@@ -104,11 +104,12 @@ def create_eval_graph(inputs, targets, lengths, model, config):
                                                                 return_value = "probs"
                                                                 )
 
-        new_sample0 = dists.sample_from_probs(dists_return,
+        new_sample0 = dists.sample_from_probs_1(dists_return,
                                               config.onehot_lat_bins,
                                               config.onehot_lon_bins,
-                                              config.onehot_sog_bins,
-                                              config.onehot_cog_bins)
+                                              config.onehot_height_bins,
+                                              config.onehot_speed_bins,
+                                              config.onehot_angle_bins)
         # 将重新采样的张量转换为float32类型
         new_sample0 = tf.cast(new_sample0, tf.float32)
 
@@ -217,14 +218,15 @@ def create_eval_graph(inputs, targets, lengths, model, config):
 
 def create_dataset_and_model(config, shuffle, repeat):
 
-    inputs, targets, mmsis, time_starts, time_ends, lengths, mean = datasets.create_AIS_dataset(config.testset_path,
+    inputs, targets, bnum, time_starts, time_ends, lengths, mean = datasets.create_ADB_dataset(config.testset_path,
                                                           os.path.join(os.path.dirname(config.trainingset_path),"mean.pkl"),
                                                           config.batch_size,
                                                           config.data_dim,
                                                           config.onehot_lat_bins,
                                                           config.onehot_lon_bins,
-                                                          config.onehot_sog_bins,
-                                                          config.onehot_cog_bins,
+                                                          config.onehot_height_bins,
+                                                          config.onehot_speed_bins,
+                                                          config.onehot_angle_bins,
                                                           shuffle=shuffle,
                                                           repeat=repeat)
     # Convert the mean of the training set to logit space so it can be used to
@@ -237,7 +239,7 @@ def create_dataset_and_model(config, shuffle, repeat):
                              generative_distribution_class,
                              generative_bias_init=generative_bias_init,
                              raw_sigma_bias=0.5)
-    return inputs, targets, mmsis, time_starts, time_ends, lengths, model
+    return inputs, targets, bnum, time_starts, time_ends, lengths, model
 
 
 def restore_checkpoint_if_exists(saver, sess, logdir):
