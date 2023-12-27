@@ -250,7 +250,7 @@ def create_ADB_dataset(dataset_path,
             tf.sequence_mask(lengths, dtype=inputs.dtype)), 2)
         return inputs, targets, lengths, bnum, time_start, time_end
 
-    dataset = dataset.map(process_AIS_batch,
+    dataset = dataset.map(process_ADB_batch,
                           num_parallel_calls=num_parallel_calls)
 
 
