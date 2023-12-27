@@ -97,7 +97,7 @@ step = None
 if config.mode in ["save_logprob","traj_reconstruction"]:
     tf.Graph().as_default()
     global_step = tf.train.get_or_create_global_step()
-    inputs, targets, mmsis, time_starts, time_ends, lengths, model = runners.create_dataset_and_model(config,
+    inputs, targets, bnum, time_starts, time_ends, lengths, model = runners.create_dataset_and_model(config,
                                                                shuffle=False,
                                                                repeat=False)
 
@@ -155,15 +155,15 @@ if config.mode == "save_logprob":
     """
     l_dict = []
     for d_i in tqdm(list(range(math.ceil(dataset_size/config.batch_size)))):
-        inp, tar, mmsi, t_start, t_end, seq_len, log_weights_np, true_np, ll_t =\
-                 sess.run([inputs, targets, mmsis, time_starts, time_ends, lengths, log_weights, track_true, ll_per_t])
+        inp, tar, bnum, t_start, t_end, seq_len, log_weights_np, true_np, ll_t =\
+                 sess.run([inputs, targets, bnum, time_starts, time_ends, lengths, log_weights, track_true, ll_per_t])
         for d_idx_inbatch in range(inp.shape[1]):
             D = dict()
             seq_len_d = seq_len[d_idx_inbatch]
             D["seq"] = np.nonzero(tar[:seq_len_d,d_idx_inbatch,:])[1].reshape(-1,4)
             D["t_start"] = t_start[d_idx_inbatch]
             D["t_end"] = t_end[d_idx_inbatch]
-            D["mmsi"] = mmsi[d_idx_inbatch]
+            D["bnum"] = bnum[d_idx_inbatch]
             D["log_weights"] = log_weights_np[:seq_len_d,:,d_idx_inbatch]
             l_dict.append(D)
     with open(outputs_path,"wb") as f:
@@ -219,7 +219,7 @@ elif config.mode == "local_logprob":
     m_map_logprob_mean = np.zeros(shape=(config.n_lat_cells,config.n_lon_cells))
     m_map_density = np.zeros(shape=(config.n_lat_cells,config.n_lon_cells))
     v_logprob = np.empty((0,))
-    v_mmsi = np.empty((0,))
+    v_bnum = np.empty((0,))
     Map_logprob = dict()
     for row  in range(config.n_lat_cells):
         for col in range(config.n_lon_cells):
@@ -373,9 +373,9 @@ elif config.mode == "contrario_detection":
     # Save abnormal tracks to csv file
     with open(os.path.join(save_dir,save_filename.replace(".png",".csv")),"w") as f:
         writer = csv.writer(f)
-        writer.writerow(["MMSI","Time_start","Time_end","Timestamp_start","Timestamp_end"])
+        writer.writerow(["BNUM","Time_start","Time_end","Timestamp_start","Timestamp_end"])
         for D in l_dict_anomaly:
-            writer.writerow([D["mmsi"],
+            writer.writerow([D["bnum"],
                              datetime.utcfromtimestamp(D["t_start"]).strftime('%Y-%m-%d %H:%M:%SZ'),
                              datetime.utcfromtimestamp(D["t_end"]).strftime('%Y-%m-%d %H:%M:%SZ'),
                              D["t_start"],D["t_end"]])
