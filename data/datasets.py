@@ -110,6 +110,11 @@ def create_AIS_dataset(dataset_path,
     if shuffle: dataset = dataset.shuffle(num_examples)
 
     # Batch sequences togther, padding them to a common length in time.
+    dataset = dataset.map(
+            lambda msg_, num_timesteps, mmsis, time_start, time_end: tuple(tf.py_func(sparse_AIS_to_dense,
+                                                   [msg_, num_timesteps, mmsis, time_start, time_end],
+                                                   [tf.float64, tf.int64, tf.int64, tf.float32, tf.float32])),
+                                                num_parallel_calls=num_parallel_calls)
     #用于批量创建数据集不同长度的数据会被填充
     dataset = dataset.padded_batch(batch_size,
                                    padded_shapes=([None, total_bins ], [], [], [], [])
@@ -123,7 +128,7 @@ def create_AIS_dataset(dataset_path,
         lengths = tf.to_int32(lengths)
         mmsis = tf.to_int32(mmsis)
         targets = data
-
+        
         # Mean center the inputs. 减去均值使数据更稳定
         inputs = data - tf.constant(mean, dtype=tf.float32,
                                     shape=[1, 1, mean.shape[0]])
