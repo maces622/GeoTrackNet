@@ -76,7 +76,7 @@ LOGPROB_STD_MAX = 5
 #======================================
 
 if config.mode == "train":
-    print(config.trainingset_path)
+    print(config.trainingset_path,"trainsetpath")
     fh = logging.FileHandler(os.path.join(config.logdir,config.log_filename+".log"))
     tf.logging.set_verbosity(tf.logging.INFO)
     # get TF logger
@@ -90,6 +90,22 @@ else:
         Vs_test = pickle.load(f)
     dataset_size = len(Vs_test)
 
+"""
+
+python geotracknet.py \
+  --mode=train \
+  --dataset_dir=./data \
+  --trainingset_name=CA_data/CA1803_train.pkl \
+  --testset_name=CA_data/CA1803_train_valid.pkl \
+  --lat_min=108.8 \
+  --lat_max=116.6 \
+  --lon_min=18.1 \
+  --lon_max=40.4 \
+  --latent_size=100 \
+  --batch_size=32 \
+  --num_samples=16 \
+  --learning_rate=0.0003 \
+"""
 ## RUN TASK-SPECIFIC SUBMODEL
 #======================================
 # 该部分主要设置了与学习模型相关的参数
@@ -117,6 +133,8 @@ if config.mode in ["save_logprob","traj_reconstruction"]:
 #runners.wait_for_checkpoint(saver, sess, config.logdir)
 #step = sess.run(global_step)
 #print(np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()]))
+## done
+
 
 if step is None:
     # The log filename contains the step.

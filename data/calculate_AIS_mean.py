@@ -27,44 +27,52 @@
 Input pipelines script for Tensorflow graph.
 This script is adapted from the original script of FIVO.
 """
-
+import sys
+sys.setrecursionlimit(10000)
 
 import numpy as np
 import pickle
 import os
 import sys
 sys.path.append("./data/")
-dataset_path = "./ct_2017010203_10_20/ct_2017010203_10_20_train.pkl"
+dataset_path = "./CA_data/CA1803_train.pkl"
 import tensorflow as tf
 
-LAT_BINS = 200; LON_BINS = 300; SOG_BINS = 30; COG_BINS = 72
+LAT_BINS = 300; LON_BINS = 300; HEIGHT_BINS = 300; SPEED_BINS=100;ANGLE_BINS = 72
 #LAT_BINS = 350; LON_BINS = 1050; SOG_BINS = 30; COG_BINS = 72
 
-def sparse_AIS_to_dense(msgs_,num_timesteps, mmsis):
-    def create_dense_vect(msg,lat_bins = 300, lon_bins = 300, sog_bins = 30 ,cog_bins = 72):
-        lat, lon, sog, cog = msg[0], msg[1], msg[2], msg[3]
-        data_dim = lat_bins + lon_bins + sog_bins + cog_bins
+def sparse_ADB_to_dense(msgs_,num_timesteps, bnum):
+    # 实现论文中提到的four-hot编码
+    #lat_bins = 200; lon_bins = 300; speed_bins = 30; angle_bins = 72
+    def create_dense_vect(msg,lat_bins = 300, lon_bins = 300, height_bins = 300 ,speed_bins = 100,angle_bins=72):
+        hgt,spd,agl,lon,lat=msg[0],msg[1],msg[2],msg[3],msg[4]
+        data_dim = lat_bins + lon_bins + height_bins + speed_bins+angle_bins
         dense_vect = np.zeros(data_dim)
-        dense_vect[int(lat*lat_bins)] = 1.0
-        dense_vect[int(lon*lon_bins) + lat_bins] = 1.0
-        dense_vect[int(sog*sog_bins) + lat_bins + lon_bins] = 1.0
-        dense_vect[int(cog*cog_bins) + lat_bins + lon_bins + sog_bins] = 1.0
+        dense_vect[int(hgt*height_bins)] = 1.0
+        dense_vect[int(spd*speed_bins) + height_bins] = 1.0
+        dense_vect[int(agl*angle_bins) + height_bins + speed_bins] = 1.0
+        dense_vect[int(lon*lon_bins) + height_bins + speed_bins + angle_bins] = 1.0
+        dense_vect[int(lat*lon_bins) + height_bins + speed_bins + angle_bins+lon_bins] = 1.0
         return dense_vect
+    msgs_[msgs_ == 1] = 0.999999
     dense_msgs = []
     for msg in msgs_:
+        # lat_bins, lon_bins, height_bins, speed_bins, angle_bins are from "create_AIS_dataset" scope 
         dense_msgs.append(create_dense_vect(msg,
-                                            lat_bins = LAT_BINS,
+                                            height_bins=HEIGHT_BINS,
+                                            speed_bins= SPEED_BINS,
+                                            angle_bins=ANGLE_BINS,
                                             lon_bins = LON_BINS,
-                                            sog_bins = SOG_BINS ,
-                                            cog_bins = COG_BINS))
+                                            lat_bins = LAT_BINS
+                                            ))
     dense_msgs = np.array(dense_msgs)
-    return dense_msgs, num_timesteps, mmsis
+    return dense_msgs, num_timesteps, bnum
 
 dirname = os.path.dirname(dataset_path)
 
 ## AIS LIST
 
-LAT, LON, SOG, COG, HEADING, ROT, NAV_STT, TIMESTAMP, MMSI = list(range(9))
+TIMESTAMP,BNUM,HEIGHT,SPEED,ANGLE,LON,LAT=list(range(7))
 
 ## ADB-S LIST
 
@@ -77,7 +85,7 @@ except:
     with tf.gfile.Open(dataset_path, "rb") as f:
         Vs = pickle.load(f, encoding = "latin1")
 
-data_dim = LAT_BINS + LON_BINS + SOG_BINS + COG_BINS
+data_dim = LAT_BINS + LON_BINS + HEIGHT_BINS + ANGLE_BINS +SPEED_BINS
 
 mean_all = np.zeros((data_dim,))
 sum_all = np.zeros((data_dim,))
@@ -87,18 +95,20 @@ current_mean = np.zeros((0,data_dim))
 current_ais_msg = 0
 
 count = 0
-for mmsi in list(Vs.keys()):
+# print(Vs)
+for bnum in list(Vs.keys()):
     count += 1
-    print(count)
-    tmp = Vs[mmsi][:,[LAT,LON,SOG,COG]]
+    # print(count)
+    tmp = Vs[bnum][:,[HEIGHT,SPEED,ANGLE,LON,LAT]]
+    # print (tmp)   
     tmp[tmp == 1] = 0.99999
-    current_sparse_matrix,_,_ = sparse_AIS_to_dense(tmp,0,0)
+    current_sparse_matrix,_,_ = sparse_ADB_to_dense(tmp,0,0)
 #    current_mean = np.mean(current_sparse_matrix,axis = 0)
     sum_all += np.sum(current_sparse_matrix,axis = 0)
     total_ais_msg += len(current_sparse_matrix)
 
 mean = sum_all/total_ais_msg
-
+print(len(mean))
 with open(dirname + "/mean.pkl","wb") as f:
     pickle.dump(mean,f)
 

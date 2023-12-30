@@ -55,7 +55,7 @@ LON_MAX = -87
 """
 
 SPEED_MAX = 30.0  # knots
-HEIGHT_MAX=20000.0
+HEIGHT_MAX=12000.0
 FIG_DPI = 150
 
 
@@ -133,7 +133,7 @@ tf.app.flags.DEFINE_float("lon_max", 41.0,
 
 ## adding the height roi
 
-tf.app.flags.DEFINE_float("hgt_min",0.0,
+tf.app.flags.DEFINE_float("hgt_min",-20.0,
                           "ROI")
 tf.app.flags.DEFINE_float("hgt_max",HEIGHT_MAX,
                           "ROI")
@@ -212,19 +212,29 @@ tf.app.flags.DEFINE_string('logdir_name', '', 'Log dir name')
 tf.app.flags.DEFINE_string('logdir', '', 'Log directory')
 tf.app.flags.DEFINE_string('trainingset_path', '', 'Training set path')
 tf.app.flags.DEFINE_string('testset_path', '', 'Test set path')
-tf.app.flags.DEFINE_integer("onehot_lat_bins", 0,
+tf.app.flags.DEFINE_integer("onehot_lat_bins", 300,
                           "Number of equal-width bins of the lat one-hot vector (degree)")
-tf.app.flags.DEFINE_integer("onehot_lon_bins",  0,
+tf.app.flags.DEFINE_integer("onehot_lon_bins",  300,
                           "Number of equal-width bins the lat one-hot vector (degree)")
-tf.app.flags.DEFINE_integer("onehot_sog_bins", 1,
-                          "Number of equal-width bins the SOG one-hot vector (knot)")
-tf.app.flags.DEFINE_integer("onehot_cog_bins", 5,
+# tf.app.flags.DEFINE_integer("onehot_sog_bins", 1,
+#                           "Number of equal-width bins the SOG one-hot vector (knot)")
+# tf.app.flags.DEFINE_integer("onehot_cog_bins", 5,
+#                           "Number of equal-width bins of the COG one-hot vector (degree)")
+
+tf.app.flags.DEFINE_integer("onehot_height_bins", 300,
+                          "Number of equal-width bins the height one-hot vector (knot)")
+tf.app.flags.DEFINE_integer("onehot_speed_bins", 100,
                           "Number of equal-width bins of the COG one-hot vector (degree)")
+tf.app.flags.DEFINE_integer("onehot_angle_bins", 75,
+                          "Number of equal-width bins of the COG one-hot vector (degree)")
+
+
 tf.app.flags.DEFINE_integer("n_lat_cells", 0,
                           "Number of lat cells")
 tf.app.flags.DEFINE_integer("n_lon_cells",  0,
                           "Number of lon cells")
-
+tf.app.flags.DEFINE_integer("n_height_cells",  0,
+                          "Number of height cells")
 
 FLAGS = tf.app.flags.FLAGS
 config = FLAGS
