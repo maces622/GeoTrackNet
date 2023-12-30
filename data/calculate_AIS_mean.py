@@ -38,13 +38,13 @@ sys.path.append("./data/")
 dataset_path = "./CA_data/CA1803_train.pkl"
 import tensorflow as tf
 
-LAT_BINS = 30; LON_BINS = 30; HEIGHT_BINS = 100; SPEED_BINS=100;ANGLE_BINS = 72
+LAT_BINS = 300; LON_BINS = 300; HEIGHT_BINS = 300; SPEED_BINS=100;ANGLE_BINS = 72
 #LAT_BINS = 350; LON_BINS = 1050; SOG_BINS = 30; COG_BINS = 72
 
 def sparse_ADB_to_dense(msgs_,num_timesteps, bnum):
     # 实现论文中提到的four-hot编码
     #lat_bins = 200; lon_bins = 300; speed_bins = 30; angle_bins = 72
-    def create_dense_vect(msg,lat_bins = 30, lon_bins = 30, height_bins = 100 ,speed_bins = 100,angle_bins=72):
+    def create_dense_vect(msg,lat_bins = 300, lon_bins = 300, height_bins = 300,speed_bins = 100,angle_bins=72):
         hgt,spd,agl,lon,lat=msg[0],msg[1],msg[2],msg[3],msg[4]
         data_dim = lat_bins + lon_bins + height_bins + speed_bins+angle_bins
         dense_vect = np.zeros(data_dim)

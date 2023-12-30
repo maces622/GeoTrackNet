@@ -44,7 +44,7 @@ import tensorflow as tf
 
 
 # The default number of threads used to process data in parallel.
-DEFAULT_PARALLELISM = 12
+DEFAULT_PARALLELISM = 18
 
 
 """
@@ -69,7 +69,7 @@ def create_ADB_dataset(dataset_path,
     def sparse_ADB_to_dense(msgs_,num_timesteps, bnum, time_start, time_end):
         # 实现论文中提到的four-hot编码
         #lat_bins = 200; lon_bins = 300; speed_bins = 30; angle_bins = 72
-        def create_dense_vect(msg,lat_bins = 30, lon_bins = 30, height_bins = 100 ,speed_bins = 100,angle_bins=72):
+        def create_dense_vect(msg,lat_bins = 300, lon_bins = 300, height_bins = 300 ,speed_bins = 100,angle_bins=72):
                 hgt,spd,agl,lon,lat=msg[0],msg[1],msg[2],msg[3],msg[4]
                 data_dim = lat_bins + lon_bins + height_bins + speed_bins+angle_bins
                 dense_vect = np.zeros(data_dim)
@@ -163,7 +163,7 @@ def create_ADB_dataset(dataset_path,
 
 #    dataset = dataset.prefetch(num_examples)
     # 预取
-    dataset = dataset.prefetch(10)
+    dataset = dataset.prefetch(50)
 
     #创建单次迭代器用于遍历其中的元素
     itr = dataset.make_one_shot_iterator()
