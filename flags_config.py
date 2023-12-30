@@ -54,9 +54,9 @@ LON_MIN = -97.5
 LON_MAX = -87
 """
 
-SPEED_MAX = 30.0  # knots
+SPEED_MAX = 1000.0 # km/h
 HEIGHT_MAX=12000.0
-FIG_DPI = 150
+FIG_DPI = 50
 
 
 # Shared flags.
@@ -72,16 +72,16 @@ tf.app.flags.DEFINE_string("bound", "elbo",
                            "The bound to optimize. Can be 'elbo', or 'fivo'.")
 
 # 隐藏状态数目设置
-tf.app.flags.DEFINE_integer("latent_size", 64,
+tf.app.flags.DEFINE_integer("latent_size", 16,
                             "The size of the latent state of the model.")
 
 
 tf.app.flags.DEFINE_string("log_dir", "./chkpt",
                            "The directory to keep checkpoints and summaries in.")
 
-tf.app.flags.DEFINE_integer("batch_size", 32,
+tf.app.flags.DEFINE_integer("batch_size", 16,
                             "Batch size.")
-tf.app.flags.DEFINE_integer("num_samples", 16,
+tf.app.flags.DEFINE_integer("num_samples", 8,
                            "The number of samples (or particles) for multisample "
                            "algorithms.")
 # log likelihood 阈值
@@ -141,21 +141,14 @@ tf.app.flags.DEFINE_float("hgt_max",HEIGHT_MAX,
 
 
 
-# 设置4-hot编码的分辨率
+# 设置5-hot编码的分辨率
 tf.app.flags.DEFINE_float("onehot_lat_reso", 0.01,
                           "Resolution of the lat one-hot vector (degree)")
 tf.app.flags.DEFINE_float("onehot_lon_reso",  0.01,
                           "Resolution of the lat one-hot vector (degree)")
-tf.app.flags.DEFINE_float("onehot_sog_reso", 1,
-                          "Resolution of the SOG one-hot vector (knot)")
-tf.app.flags.DEFINE_float("onehot_cog_reso", 5,
-                          "Resolution of the COG one-hot vector (degree)")
-
-## resolution for adb-s datasets
-"""-------------------------------------------------------------------"""
-tf.app.flags.DEFINE_float("onehot_height_reso",10,
+tf.app.flags.DEFINE_float("onehot_height_reso",100.0,
                           "Resolution of the height one-hot vector(height)")
-tf.app.flags.DEFINE_float("onehot_speed_reso",10,
+tf.app.flags.DEFINE_float("onehot_speed_reso",10.0,
                           "Resolution of the speed one-hot vector(speed)")
 tf.app.flags.DEFINE_float("onehot_angle_reso",1.0,
                           "Resolution of the speed one-hot vector(angle)")
@@ -169,12 +162,12 @@ tf.app.flags.DEFINE_float("cell_lon_reso",  0.1,
                           "Lon resolution of each small cell when applying local thresholding")
 ## detection flags for adb-s datasets
 """-------------------------------------------------------------------"""
-tf.app.flags.DEFINE_float("cell_height_reso",0.1,
+tf.app.flags.DEFINE_float("cell_height_reso",100,
                           "height resolution for each small cell when applying local thresholding")
 
 
 
-tf.app.flags.DEFINE_float("contrario_eps", 1e-9,
+tf.app.flags.DEFINE_float("contrario_eps", 1e-7,
                           "A contrario eps.")
 tf.app.flags.DEFINE_boolean("print_log", False,
                             "If true, print the current state of the program to screen.")
@@ -186,9 +179,9 @@ tf.app.flags.DEFINE_boolean("print_log", False,
 tf.app.flags.DEFINE_boolean("normalize_by_seq_len", True,
                             "If true, normalize the loss by the number of timesteps "
                             "per sequence.")
-tf.app.flags.DEFINE_float("learning_rate", 0.0003,
+tf.app.flags.DEFINE_float("learning_rate", 0.001,
                           "The learning rate for ADAM.")
-tf.app.flags.DEFINE_integer("max_steps", int(80000),
+tf.app.flags.DEFINE_integer("max_steps", int(10000),
                             "The number of gradient update steps to train for.")
 tf.app.flags.DEFINE_integer("summarize_every", 100,
                             "The number of steps between summaries.")
@@ -212,20 +205,20 @@ tf.app.flags.DEFINE_string('logdir_name', '', 'Log dir name')
 tf.app.flags.DEFINE_string('logdir', '', 'Log directory')
 tf.app.flags.DEFINE_string('trainingset_path', '', 'Training set path')
 tf.app.flags.DEFINE_string('testset_path', '', 'Test set path')
-tf.app.flags.DEFINE_integer("onehot_lat_bins", 300,
+tf.app.flags.DEFINE_integer("onehot_lat_bins", 30,
                           "Number of equal-width bins of the lat one-hot vector (degree)")
-tf.app.flags.DEFINE_integer("onehot_lon_bins",  300,
+tf.app.flags.DEFINE_integer("onehot_lon_bins",  30,
                           "Number of equal-width bins the lat one-hot vector (degree)")
 # tf.app.flags.DEFINE_integer("onehot_sog_bins", 1,
 #                           "Number of equal-width bins the SOG one-hot vector (knot)")
 # tf.app.flags.DEFINE_integer("onehot_cog_bins", 5,
 #                           "Number of equal-width bins of the COG one-hot vector (degree)")
 
-tf.app.flags.DEFINE_integer("onehot_height_bins", 300,
+tf.app.flags.DEFINE_integer("onehot_height_bins", 100,
                           "Number of equal-width bins the height one-hot vector (knot)")
 tf.app.flags.DEFINE_integer("onehot_speed_bins", 100,
                           "Number of equal-width bins of the COG one-hot vector (degree)")
-tf.app.flags.DEFINE_integer("onehot_angle_bins", 75,
+tf.app.flags.DEFINE_integer("onehot_angle_bins", 72,
                           "Number of equal-width bins of the COG one-hot vector (degree)")
 
 
@@ -243,17 +236,17 @@ config = FLAGS
 ## CONFIGS
 #===============================================
 
-## FOUR-HOT VECTOR 
-config.onehot_lat_bins = math.ceil((config.lat_max-config.lat_min)/config.onehot_lat_reso)
-config.onehot_lon_bins = math.ceil((config.lon_max-config.lon_min)/config.onehot_lon_reso)
+# ## FOUR-HOT VECTOR 
+# config.onehot_lat_bins = math.ceil((config.lat_max-config.lat_min)/config.onehot_lat_reso)
+# config.onehot_lon_bins = math.ceil((config.lon_max-config.lon_min)/config.onehot_lon_reso)
 
-# config.onehot_sog_bins = math.ceil(SPEED_MAX/config.onehot_sog_reso)
-# config.onehot_cog_bins = math.ceil(360/config.onehot_cog_reso)
-"""------------------------------------------------------------------------------"""
-## FOUR-HOT VECTOR FOR ADB-S DATASTES
-config.onehot_height_bins=math.ceil((HEIGHT_MAX)/config.onehot_height_reso)
-config.onehot_speed_bins=math.ceil((SPEED_MAX)/config.onehot_speed_reso)
-config.onehot_angle_bins=math.ceil(360/config.onehot_angle_reso)
+# # config.onehot_sog_bins = math.ceil(SPEED_MAX/config.onehot_sog_reso)
+# # config.onehot_cog_bins = math.ceil(360/config.onehot_cog_reso)
+# """------------------------------------------------------------------------------"""
+# ## FOUR-HOT VECTOR FOR ADB-S DATASTES
+# config.onehot_height_bins=math.ceil((HEIGHT_MAX)/config.onehot_height_reso)
+# config.onehot_speed_bins=math.ceil((SPEED_MAX)/config.onehot_speed_reso)
+# config.onehot_angle_bins=math.ceil(360/config.onehot_angle_reso)
 
 
 # 数据的总维度

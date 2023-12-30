@@ -69,7 +69,7 @@ def create_ADB_dataset(dataset_path,
     def sparse_ADB_to_dense(msgs_,num_timesteps, bnum, time_start, time_end):
         # 实现论文中提到的four-hot编码
         #lat_bins = 200; lon_bins = 300; speed_bins = 30; angle_bins = 72
-        def create_dense_vect(msg,lat_bins = 300, lon_bins = 300, height_bins = 300 ,speed_bins = 100,angle_bins=72):
+        def create_dense_vect(msg,lat_bins = 30, lon_bins = 30, height_bins = 100 ,speed_bins = 100,angle_bins=72):
                 hgt,spd,agl,lon,lat=msg[0],msg[1],msg[2],msg[3],msg[4]
                 data_dim = lat_bins + lon_bins + height_bins + speed_bins+angle_bins
                 dense_vect = np.zeros(data_dim)
@@ -79,7 +79,7 @@ def create_ADB_dataset(dataset_path,
                 dense_vect[int(lon*lon_bins) + height_bins + speed_bins + angle_bins] = 1.0
                 dense_vect[int(lat*lon_bins) + height_bins + speed_bins + angle_bins+lon_bins] = 1.0
                 return dense_vect
-        msgs_[msgs_ == 1] = 0.999999
+        msgs_[msgs_ == 1] = 0.99999
         dense_msgs = []
         for msg in msgs_:
             # lat_bins, lon_bins, height_bins, speed_bins, angle_bins are from "create_AIS_dataset" scope 
@@ -90,6 +90,7 @@ def create_ADB_dataset(dataset_path,
                                                 speed_bins= speed_bins,
                                                 angle_bins=angle_bins))
         dense_msgs = np.array(dense_msgs)
+        # print(len(dense_msgs))
         return dense_msgs, num_timesteps, bnum, time_start, time_end
 
 
@@ -123,9 +124,14 @@ def create_ADB_dataset(dataset_path,
     print("------------------------------------------------------------")
     if repeat: dataset = dataset.repeat()
     if shuffle: dataset = dataset.shuffle(num_examples)
-    print(type(dataset      ))
+    print((dataset))
     print("----------xxxxxxxxxxxxxxxxxxxxxxx-----------------------")
     # Batch sequences togther, padding them to a common length in time.
+    dataset = dataset.map(
+            lambda msg_, num_timesteps, bnum, time_start, time_end: tuple(tf.py_func(sparse_ADB_to_dense,
+                                                   [msg_, num_timesteps, bnum, time_start, time_end],
+                                                   [tf.float64, tf.int64, tf.int64, tf.float32, tf.float32])),
+                                                num_parallel_calls=num_parallel_calls)
     #用于批量创建数据集不同长度的数据会被填充
     dataset = dataset.padded_batch(batch_size,
                                    padded_shapes=([None, total_bins ], [], [], [], [])

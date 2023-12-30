@@ -101,9 +101,8 @@ python geotracknet.py \
   --lat_max=116.6 \
   --lon_min=18.1 \
   --lon_max=40.4 \
-  --latent_size=100 \
-  --batch_size=32 \
-  --num_samples=16 \
+  --batch_size=2 \
+  --num_samples=1 \
   --learning_rate=0.0003 \
 """
 ## RUN TASK-SPECIFIC SUBMODEL

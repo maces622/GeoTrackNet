@@ -1,0 +1,13 @@
+Create CheckpointSaverHook.
+Graph was finalized.
+Running local_init_op.
+Done running local_init_op.
+Saving checkpoints for 0 into ./chkpt/elbo-CA1803_train.pkl-data_dim-1072-latent_size-100-batch_size-32/model.ckpt.
+Step 0, elbo bound per timestep: -26.674698
+Saving checkpoints for 18 into ./chkpt/elbo-CA1803_train.pkl-data_dim-1072-latent_size-100-batch_size-32/model.ckpt.
+Saving checkpoints for 37 into ./chkpt/elbo-CA1803_train.pkl-data_dim-1072-latent_size-100-batch_size-32/model.ckpt.
+Saving checkpoints for 56 into ./chkpt/elbo-CA1803_train.pkl-data_dim-1072-latent_size-100-batch_size-32/model.ckpt.
+Saving checkpoints for 75 into ./chkpt/elbo-CA1803_train.pkl-data_dim-1072-latent_size-100-batch_size-32/model.ckpt.
+Saving checkpoints for 95 into ./chkpt/elbo-CA1803_train.pkl-data_dim-1072-latent_size-100-batch_size-32/model.ckpt.
+global_step/sec: 0.157036
+Step 100, elbo bound per timestep: -24.859705
