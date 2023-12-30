@@ -1966,3 +1966,11 @@ Done running local_init_op.
 Saving checkpoints for 80004 into ./chkpt/elbo-ct_2017010203_10_20_train.pkl-data_dim-602-latent_size-100-batch_size-32/model.ckpt.
 Step 80004, elbo bound per timestep: -4.865499
 Saving checkpoints for 80005 into ./chkpt/elbo-ct_2017010203_10_20_train.pkl-data_dim-602-latent_size-100-batch_size-32/model.ckpt.
+Create CheckpointSaverHook.
+Graph was finalized.
+Restoring parameters from ./chkpt/elbo-ct_2017010203_10_20_train.pkl-data_dim-602-latent_size-100-batch_size-32/model.ckpt-80005
+Running local_init_op.
+Done running local_init_op.
+Saving checkpoints for 80005 into ./chkpt/elbo-ct_2017010203_10_20_train.pkl-data_dim-602-latent_size-100-batch_size-32/model.ckpt.
+Step 80005, elbo bound per timestep: -5.459643
+Saving checkpoints for 80006 into ./chkpt/elbo-ct_2017010203_10_20_train.pkl-data_dim-602-latent_size-100-batch_size-32/model.ckpt.

@@ -1,0 +1,52 @@
+Create CheckpointSaverHook.
+Graph was finalized.
+Running local_init_op.
+Done running local_init_op.
+Saving checkpoints for 0 into ./chkpt/elbo-ct_2017010203_10_20_train.pkl-data_dim-602-latent_size-64-batch_size-32/model.ckpt.
+Step 0, elbo bound per timestep: -21.049742
+global_step/sec: 1.94788
+Step 100, elbo bound per timestep: -20.070160
+Create CheckpointSaverHook.
+Graph was finalized.
+Restoring parameters from ./chkpt/elbo-ct_2017010203_10_20_train.pkl-data_dim-602-latent_size-64-batch_size-32/model.ckpt-0
+Running local_init_op.
+Done running local_init_op.
+Saving checkpoints for 0 into ./chkpt/elbo-ct_2017010203_10_20_train.pkl-data_dim-602-latent_size-64-batch_size-32/model.ckpt.
+Step 0, elbo bound per timestep: -20.918436
+global_step/sec: 1.00757
+Step 2, elbo bound per timestep: -20.469337
+global_step/sec: 1.99653
+Step 4, elbo bound per timestep: -20.469475
+global_step/sec: 1.77031
+Step 6, elbo bound per timestep: -20.315006
+global_step/sec: 1.88734
+Step 8, elbo bound per timestep: -20.274010
+global_step/sec: 1.70591
+Step 10, elbo bound per timestep: -20.483116
+Create CheckpointSaverHook.
+Graph was finalized.
+Restoring parameters from ./chkpt/elbo-ct_2017010203_10_20_train.pkl-data_dim-602-latent_size-64-batch_size-32/model.ckpt-0
+Running local_init_op.
+Done running local_init_op.
+Saving checkpoints for 0 into ./chkpt/elbo-ct_2017010203_10_20_train.pkl-data_dim-602-latent_size-64-batch_size-32/model.ckpt.
+Step 0, elbo bound per timestep: -21.146883
+global_step/sec: 0.87005
+Step 2, elbo bound per timestep: -20.697456
+global_step/sec: 1.53973
+Step 4, elbo bound per timestep: -20.432751
+global_step/sec: 2.37486
+Step 6, elbo bound per timestep: -20.280449
+global_step/sec: 1.98679
+Step 8, elbo bound per timestep: -20.436890
+global_step/sec: 1.72903
+Step 10, elbo bound per timestep: -20.540104
+global_step/sec: 2.00187
+Step 12, elbo bound per timestep: -20.432165
+global_step/sec: 1.75931
+Step 14, elbo bound per timestep: -20.226809
+global_step/sec: 1.79515
+Step 16, elbo bound per timestep: -20.654228
+global_step/sec: 2.28309
+Step 18, elbo bound per timestep: -20.283131
+global_step/sec: 1.59914
+Step 20, elbo bound per timestep: -20.992371

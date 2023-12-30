@@ -150,7 +150,7 @@ tf.app.flags.DEFINE_float("learning_rate", 0.0003,
                           "The learning rate for ADAM.")
 tf.app.flags.DEFINE_integer("max_steps", int(80000),
                             "The number of gradient update steps to train for.")
-tf.app.flags.DEFINE_integer("summarize_every", 100,
+tf.app.flags.DEFINE_integer("summarize_every", 2,
                             "The number of steps between summaries.")
 
 

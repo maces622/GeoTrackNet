@@ -302,6 +302,36 @@ node {
   }
 }
 node {
+  name: "num_parallel_calls"
+  op: "Const"
+  attr {
+    key: "_output_shapes"
+    value {
+      list {
+        shape {
+        }
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 12
+      }
+    }
+  }
+}
+node {
   name: "batch_size"
   op: "Const"
   attr {
@@ -680,7 +710,7 @@ node {
   }
 }
 node {
-  name: "num_parallel_calls"
+  name: "num_parallel_calls_1"
   op: "Const"
   attr {
     key: "_output_shapes"
@@ -761,7 +791,7 @@ node {
     key: "dataset_factory"
     value {
       func {
-        name: "_make_dataset_4FMBTq9V6og"
+        name: "_make_dataset_3GaUY2a0r7k"
       }
     }
   }
@@ -103798,7 +103828,7 @@ node {
         dtype: DT_STRING
         tensor_shape {
         }
-        string_val: "_temp_6a6e59aca3304b44a21a56c770982314/part"
+        string_val: "_temp_832b3734461e4d12a427e6be089f8007/part"
       }
     }
   }
@@ -108089,7 +108119,7 @@ node {
 library {
   function {
     signature {
-      name: "_make_dataset_4FMBTq9V6og"
+      name: "_make_dataset_3GaUY2a0r7k"
       output_arg {
         name: "prefetchdataset"
         type: DT_VARIANT
@@ -108366,6 +108396,88 @@ library {
       }
     }
     node_def {
+      name: "ParallelMapDataset/num_parallel_calls"
+      op: "Const"
+      attr {
+        key: "dtype"
+        value {
+          type: DT_INT32
+        }
+      }
+      attr {
+        key: "value"
+        value {
+          tensor {
+            dtype: DT_INT32
+            tensor_shape {
+            }
+            int_val: 12
+          }
+        }
+      }
+    }
+    node_def {
+      name: "ParallelMapDataset"
+      op: "ParallelMapDataset"
+      input: "ShuffleDataset:handle:0"
+      input: "ParallelMapDataset/num_parallel_calls:output:0"
+      attr {
+        key: "Targuments"
+        value {
+          list {
+          }
+        }
+      }
+      attr {
+        key: "f"
+        value {
+          func {
+            name: "tf_data_structured_function_wrapper_8cdiPea29nA"
+          }
+        }
+      }
+      attr {
+        key: "output_shapes"
+        value {
+          list {
+            shape {
+              unknown_rank: true
+            }
+            shape {
+              unknown_rank: true
+            }
+            shape {
+              unknown_rank: true
+            }
+            shape {
+              unknown_rank: true
+            }
+            shape {
+              unknown_rank: true
+            }
+          }
+        }
+      }
+      attr {
+        key: "output_types"
+        value {
+          list {
+            type: DT_DOUBLE
+            type: DT_INT64
+            type: DT_INT64
+            type: DT_FLOAT
+            type: DT_FLOAT
+          }
+        }
+      }
+      attr {
+        key: "use_inter_op_parallelism"
+        value {
+          b: true
+        }
+      }
+    }
+    node_def {
       name: "PaddedBatchDatasetV2/batch_size"
       op: "Const"
       attr {
@@ -108627,7 +108739,7 @@ library {
     node_def {
       name: "PaddedBatchDatasetV2"
       op: "PaddedBatchDatasetV2"
-      input: "ShuffleDataset:handle:0"
+      input: "ParallelMapDataset:handle:0"
       input: "PaddedBatchDatasetV2/batch_size:output:0"
       input: "PaddedBatchDatasetV2/Const:output:0"
       input: "PaddedBatchDatasetV2/Const_1:output:0"
@@ -108698,7 +108810,7 @@ library {
       }
     }
     node_def {
-      name: "ParallelMapDataset/num_parallel_calls"
+      name: "ParallelMapDataset_1/num_parallel_calls_1"
       op: "Const"
       attr {
         key: "dtype"
@@ -108719,10 +108831,10 @@ library {
       }
     }
     node_def {
-      name: "ParallelMapDataset"
+      name: "ParallelMapDataset_1"
       op: "ParallelMapDataset"
       input: "PaddedBatchDatasetV2:handle:0"
-      input: "ParallelMapDataset/num_parallel_calls:output:0"
+      input: "ParallelMapDataset_1/num_parallel_calls_1:output:0"
       attr {
         key: "Targuments"
         value {
@@ -108831,7 +108943,7 @@ library {
     node_def {
       name: "PrefetchDataset"
       op: "PrefetchDataset"
-      input: "ParallelMapDataset:handle:0"
+      input: "ParallelMapDataset_1:handle:0"
       input: "PrefetchDataset/buffer_size_1:output:0"
       attr {
         key: "output_shapes"
@@ -109175,6 +109287,112 @@ library {
     ret {
       key: "pyfunc"
       value: "PyFunc:output:0"
+    }
+  }
+  function {
+    signature {
+      name: "tf_data_structured_function_wrapper_8cdiPea29nA"
+      input_arg {
+        name: "arg0"
+        type: DT_DOUBLE
+      }
+      input_arg {
+        name: "arg1"
+        type: DT_INT64
+      }
+      input_arg {
+        name: "arg2"
+        type: DT_INT64
+      }
+      input_arg {
+        name: "arg3"
+        type: DT_FLOAT
+      }
+      input_arg {
+        name: "arg4"
+        type: DT_FLOAT
+      }
+      output_arg {
+        name: "pyfunc"
+        type: DT_DOUBLE
+      }
+      output_arg {
+        name: "pyfunc_0"
+        type: DT_INT64
+      }
+      output_arg {
+        name: "pyfunc_1"
+        type: DT_INT64
+      }
+      output_arg {
+        name: "pyfunc_2"
+        type: DT_FLOAT
+      }
+      output_arg {
+        name: "pyfunc_3"
+        type: DT_FLOAT
+      }
+      description: "Wrapper for passing nested structures to and from tf.data functions."
+      is_stateful: true
+    }
+    node_def {
+      name: "PyFunc"
+      op: "PyFunc"
+      input: "arg0"
+      input: "arg1"
+      input: "arg2"
+      input: "arg3"
+      input: "arg4"
+      attr {
+        key: "Tin"
+        value {
+          list {
+            type: DT_DOUBLE
+            type: DT_INT64
+            type: DT_INT64
+            type: DT_FLOAT
+            type: DT_FLOAT
+          }
+        }
+      }
+      attr {
+        key: "Tout"
+        value {
+          list {
+            type: DT_DOUBLE
+            type: DT_INT64
+            type: DT_INT64
+            type: DT_FLOAT
+            type: DT_FLOAT
+          }
+        }
+      }
+      attr {
+        key: "token"
+        value {
+          s: "pyfunc_3"
+        }
+      }
+    }
+    ret {
+      key: "pyfunc"
+      value: "PyFunc:output:0"
+    }
+    ret {
+      key: "pyfunc_0"
+      value: "PyFunc:output:1"
+    }
+    ret {
+      key: "pyfunc_1"
+      value: "PyFunc:output:2"
+    }
+    ret {
+      key: "pyfunc_2"
+      value: "PyFunc:output:3"
+    }
+    ret {
+      key: "pyfunc_3"
+      value: "PyFunc:output:4"
     }
   }
   function {
