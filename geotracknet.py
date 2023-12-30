@@ -101,9 +101,24 @@ python geotracknet.py \
   --lat_max=116.6 \
   --lon_min=18.1 \
   --lon_max=40.4 \
-  --batch_size=2 \
-  --num_samples=1 \
-  --learning_rate=0.0003 \
+  --batch_size=16 \
+  --num_samples=8 \
+  --learning_rate=0.005 \
+      
+      
+python geotracknet.py \
+  --mode=train \
+  --dataset_dir=./data \
+  --trainingset_name=CA_data/CA1803_train.pkl \
+  --testset_name=CA_data/CA1803_train_valid.pkl \
+  --lat_min=108.8 \
+  --lat_max=116.6 \
+  --lon_min=18.1 \
+  --lon_max=40.4 \
+  --latent_size=100 \
+  --batch_size=16 \
+  --num_samples=8 \
+  --learning_rate=0.001 \
 """
 ## RUN TASK-SPECIFIC SUBMODEL
 #======================================

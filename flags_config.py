@@ -56,7 +56,7 @@ LON_MAX = -87
 
 SPEED_MAX = 1000.0 # km/h
 HEIGHT_MAX=12000.0
-FIG_DPI = 50
+FIG_DPI = 150
 
 
 # Shared flags.
@@ -72,7 +72,7 @@ tf.app.flags.DEFINE_string("bound", "elbo",
                            "The bound to optimize. Can be 'elbo', or 'fivo'.")
 
 # 隐藏状态数目设置
-tf.app.flags.DEFINE_integer("latent_size", 16,
+tf.app.flags.DEFINE_integer("latent_size", 64,
                             "The size of the latent state of the model.")
 
 
@@ -113,8 +113,7 @@ tf.app.flags.DEFINE_integer("random_seed", None,
 # Track flags.
 tf.app.flags.DEFINE_float("interval_max", 2*3600,
                           "Maximum interval between two successive AIS messages (in second).")
-tf.app.flags.DEFINE_integer("min_duration", 4,
-                            "Min duration (hour) of a vessel track")
+
 
 # CA1803 CONFIG
 # 40.32592 18.08821 116.59848 108.72703
@@ -146,7 +145,7 @@ tf.app.flags.DEFINE_float("onehot_lat_reso", 0.01,
                           "Resolution of the lat one-hot vector (degree)")
 tf.app.flags.DEFINE_float("onehot_lon_reso",  0.01,
                           "Resolution of the lat one-hot vector (degree)")
-tf.app.flags.DEFINE_float("onehot_height_reso",100.0,
+tf.app.flags.DEFINE_float("onehot_height_reso",10.0,
                           "Resolution of the height one-hot vector(height)")
 tf.app.flags.DEFINE_float("onehot_speed_reso",10.0,
                           "Resolution of the speed one-hot vector(speed)")
@@ -162,7 +161,7 @@ tf.app.flags.DEFINE_float("cell_lon_reso",  0.1,
                           "Lon resolution of each small cell when applying local thresholding")
 ## detection flags for adb-s datasets
 """-------------------------------------------------------------------"""
-tf.app.flags.DEFINE_float("cell_height_reso",100,
+tf.app.flags.DEFINE_float("cell_height_reso",1,
                           "height resolution for each small cell when applying local thresholding")
 
 
@@ -179,11 +178,11 @@ tf.app.flags.DEFINE_boolean("print_log", False,
 tf.app.flags.DEFINE_boolean("normalize_by_seq_len", True,
                             "If true, normalize the loss by the number of timesteps "
                             "per sequence.")
-tf.app.flags.DEFINE_float("learning_rate", 0.001,
+tf.app.flags.DEFINE_float("learning_rate", 0.0005,
                           "The learning rate for ADAM.")
 tf.app.flags.DEFINE_integer("max_steps", int(10000),
                             "The number of gradient update steps to train for.")
-tf.app.flags.DEFINE_integer("summarize_every", 100,
+tf.app.flags.DEFINE_integer("summarize_every", 2,
                             "The number of steps between summaries.")
 
 
@@ -205,16 +204,16 @@ tf.app.flags.DEFINE_string('logdir_name', '', 'Log dir name')
 tf.app.flags.DEFINE_string('logdir', '', 'Log directory')
 tf.app.flags.DEFINE_string('trainingset_path', '', 'Training set path')
 tf.app.flags.DEFINE_string('testset_path', '', 'Test set path')
-tf.app.flags.DEFINE_integer("onehot_lat_bins", 30,
+tf.app.flags.DEFINE_integer("onehot_lat_bins", 300,
                           "Number of equal-width bins of the lat one-hot vector (degree)")
-tf.app.flags.DEFINE_integer("onehot_lon_bins",  30,
+tf.app.flags.DEFINE_integer("onehot_lon_bins",  300,
                           "Number of equal-width bins the lat one-hot vector (degree)")
 # tf.app.flags.DEFINE_integer("onehot_sog_bins", 1,
 #                           "Number of equal-width bins the SOG one-hot vector (knot)")
 # tf.app.flags.DEFINE_integer("onehot_cog_bins", 5,
 #                           "Number of equal-width bins of the COG one-hot vector (degree)")
 
-tf.app.flags.DEFINE_integer("onehot_height_bins", 100,
+tf.app.flags.DEFINE_integer("onehot_height_bins", 300,
                           "Number of equal-width bins the height one-hot vector (knot)")
 tf.app.flags.DEFINE_integer("onehot_speed_bins", 100,
                           "Number of equal-width bins of the COG one-hot vector (degree)")
