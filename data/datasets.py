@@ -77,7 +77,8 @@ def create_ADB_dataset(dataset_path,
                 dense_vect[int(spd*speed_bins) + height_bins] = 1.0
                 dense_vect[int(agl*angle_bins) + height_bins + speed_bins] = 1.0
                 dense_vect[int(lon*lon_bins) + height_bins + speed_bins + angle_bins] = 1.0
-                dense_vect[int(lat*lon_bins) + height_bins + speed_bins + angle_bins+lon_bins] = 1.0
+                dense_vect[int(lat*lat_bins) + height_bins + speed_bins + angle_bins+lon_bins] = 1.0
+                # 之前有错误
                 return dense_vect
         msgs_[msgs_ == 1] = 0.99999
         dense_msgs = []

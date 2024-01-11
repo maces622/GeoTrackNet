@@ -89,6 +89,10 @@ else:
     with open(config.testset_path,"rb") as f:
         Vs_test = pickle.load(f)
     dataset_size = len(Vs_test)
+    print("dataset size:")
+    print(dataset_size)
+    print("------------------")
+    
 
 """
 
@@ -96,7 +100,7 @@ python geotracknet.py \
   --mode=train \
   --dataset_dir=./data \
   --trainingset_name=CA_data/CA1803_train.pkl \
-  --testset_name=CA_data/CA1803_train_valid.pkl \
+  --testset_name=CA_data/CA1803_valide.pkl \
   --lat_min=108.8 \
   --lat_max=116.6 \
   --lon_min=18.1 \
@@ -110,7 +114,7 @@ python geotracknet.py \
   --mode=train \
   --dataset_dir=./data \
   --trainingset_name=CA_data/CA1803_train.pkl \
-  --testset_name=CA_data/CA1803_train_valid.pkl \
+  --testset_name=CA_data/CA1803_valid.pkl \
   --lat_min=108.8 \
   --lat_max=116.6 \
   --lon_min=18.1 \
@@ -190,16 +194,32 @@ if config.mode == "save_logprob":
         inp, tar, bnum, t_start, t_end, seq_len, log_weights_np, true_np, ll_t =\
                  sess.run([inputs, targets, bnum, time_starts, time_ends, lengths, log_weights, track_true, ll_per_t])
         for d_idx_inbatch in range(inp.shape[1]):
+            print("------")
             D = dict()
             seq_len_d = seq_len[d_idx_inbatch]
-            D["seq"] = np.nonzero(tar[:seq_len_d,d_idx_inbatch,:])[1].reshape(-1,4)
+            nonzero_indices = np.nonzero(tar[:seq_len_d,d_idx_inbatch,:])[1]
+            # 确保非零元素数量是4的倍数
+            num_elements = len(nonzero_indices)
+            num_to_remove = num_elements % 5
+            if num_to_remove != 0:
+                nonzero_indices = nonzero_indices[:-num_to_remove]
+
+            # 重塑数组
+            reshaped_array = nonzero_indices.reshape(-1, 5)
+            print(reshaped_array)
+            # 然后将 reshaped_array 存入字典 D 的 "seq" 键中
+            D["seq"] = reshaped_array
             D["t_start"] = t_start[d_idx_inbatch]
             D["t_end"] = t_end[d_idx_inbatch]
             D["bnum"] = bnum[d_idx_inbatch]
             D["log_weights"] = log_weights_np[:seq_len_d,:,d_idx_inbatch]
+            #
+            # print(D["log_weights"])
             l_dict.append(D)
     with open(outputs_path,"wb") as f:
         pickle.dump(l_dict,f)
+        
+    print(outputs_path)
 
     """ LL
     Plot the distribution of log[p(x_t|h_t)] of each track in the test set.
@@ -240,11 +260,19 @@ if config.mode == "save_logprob":
     plt.close()
     
 #===============================================================================
+
 #===============================================================================
 elif config.mode == "local_logprob":
     """ LOCAL THRESHOLD
     The ROI is divided into small cells, in each cell, we calculate the mean and
     the std of log[p(x_t|h_t)].
+
+    python geotracknet.py   --mode=save_logprob    --dataset_dir=./data   --trainingset_name=CA_data/CA1803_train.pkl   --testset_name=CA_data/CA1803_valid.pkl   --lat_min=108.8   --lat_max=116.6   --lon_min=18.1   --lon_max=40.4   --latent_size=100   --batch_size=16   --num_samples=8   --learning_rate=0.001 
+    python geotracknet.py   --mode=save_logprob    --dataset_dir=./data   --trainingset_name=CA_data/CA1803_train.pkl   --testset_name=CA_data/CA1803_test.pkl   --lat_min=108.8   --lat_max=116.6   --lon_min=18.1   --lon_max=40.4   --latent_size=100   --batch_size=16   --num_samples=8   --learning_rate=0.001 
+
+    python geotracknet.py   --mode=local_logprob    --dataset_dir=./data   --trainingset_name=CA_data/CA1803_train.pkl   --testset_name=CA_data/CA1803_valid.pkl   --lat_min=108.8   --lat_max=116.6   --lon_min=18.1   --lon_max=40.4   --latent_size=100   --batch_size=16   --num_samples=8   --learning_rate=0.001 
+    python geotracknet.py   --mode=contrario_detection     --dataset_dir=./data   --trainingset_name=CA_data/CA1803_train.pkl   --testset_name=CA_data/CA1803_test.pkl   --lat_min=108.8   --lat_max=116.6   --lon_min=18.1   --lon_max=40.4   --latent_size=100   --batch_size=16   --num_samples=8   --learning_rate=0.001 
+
     """
     # Init
     m_map_logprob_std = np.zeros(shape=(config.n_lat_cells,config.n_lon_cells))
@@ -260,16 +288,22 @@ elif config.mode == "local_logprob":
     # Load logprob
     with open(outputs_path,"rb") as f:
         l_dict = pickle.load(f)
-
+    print(outputs_path)
     print("Calculating the logprob map...")
     for D in tqdm(l_dict):
         tmp = D["seq"]
         log_weights_np = D["log_weights"]
+        print("log_w")
+        print(config.n_lon_cells,config.n_lat_cells)
+        # print(len(log_weights_np))
+        # print(type(log_weights_np))
+        # print(log_weights_np)
         for d_timestep in range(2*6,len(tmp)):
             try:
-                row = int(tmp[d_timestep,0]*0.01/config.cell_lat_reso)
-                col = int((tmp[d_timestep,1]-config.onehot_lat_bins)*0.01/config.cell_lat_reso)
-                Map_logprob[str(row)+","+str(col)].append(np.mean(log_weights_np[d_timestep,:]))
+                row = int((tmp[d_timestep,4]-config.onehot_height_bins-config.onehot_speed_bins-config.onehot_angle_bins-config.onehot_lon_bins)*0.01/config.cell_lat_reso)
+                col = int((tmp[d_timestep,3]-config.onehot_height_bins-config.onehot_speed_bins-config.onehot_angle_bins)*0.01/config.cell_lon_reso)
+                Map_logprob[str(row )+","+str(col)].append(np.mean(log_weights_np[d_timestep,:]))
+                # print(Map_logprob[str(row )+","+str(col)])
             except:
                 continue
 
@@ -277,10 +311,12 @@ elif config.mode == "local_logprob":
     for row  in range(config.n_lat_cells):
         for col in range(config.n_lon_cells):
             s_key = str(row)+","+str(col) 
-            Map_logprob[s_key] = utils.remove_gaussian_outlier(np.array(Map_logprob[s_key]))
-            m_map_logprob_mean[row,col] = np.mean(Map_logprob[s_key])
-            m_map_logprob_std[row,col] = np.std(Map_logprob[s_key])
-            m_map_density[row,col] = len(Map_logprob[s_key])
+            if len(np.array(Map_logprob[s_key])):
+                Map_logprob[s_key] = utils.remove_gaussian_outlier(np.array(Map_logprob[s_key]))
+            # print(np.array(Map_logprob[s_key]))
+                m_map_logprob_mean[row,col] = np.mean(Map_logprob[s_key])
+                m_map_logprob_std[row,col] = np.std(Map_logprob[s_key])
+                m_map_density[row,col] = len(Map_logprob[s_key])
     
     # Save to disk
     if not os.path.exists(save_dir):
@@ -314,11 +350,13 @@ elif config.mode == "contrario_detection":
     # Load the logprob
     with open(outputs_path,"rb") as f:
         l_dict = pickle.load(f)
+    print("outputpath：",outputs_path)
     d_i = 0
     v_mean_log = []
     l_v_A = []
     v_buffer_count = []
     length_track = len(l_dict[0]["seq"])
+    # print(len(l_dict))
     l_dict_anomaly = []
     n_error = 0
     for D in tqdm(l_dict):
@@ -326,10 +364,15 @@ elif config.mode == "contrario_detection":
         # if True:
             tmp = D["seq"]
             m_log_weights_np = D["log_weights"]
+            # print("m_log_weights_np",m_log_weights_np)
             v_A = np.zeros(len(tmp))
+            # print(tmp)
             for d_timestep in range(2*6,len(tmp)):
+                # print(d_timestep)
                 d_row = int(tmp[d_timestep,0]*config.onehot_lat_reso/config.cell_lat_reso)
+
                 d_col = int((tmp[d_timestep,1]-config.onehot_lat_bins)*config.onehot_lat_reso/config.cell_lon_reso)
+                print(d_col)
                 d_logprob_t = np.mean(m_log_weights_np[d_timestep,:])
 
                 # KDE
