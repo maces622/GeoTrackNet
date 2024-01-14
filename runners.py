@@ -104,12 +104,12 @@ def create_eval_graph(inputs, targets, lengths, model, config):
                                                                 return_value = "probs"
                                                                 )
 
-        new_sample0 = dists.sample_from_probs_1(dists_return,
-                                              config.onehot_lat_bins,
-                                              config.onehot_lon_bins,
+        new_sample0 = dists.sample_from_probs(dists_return,
                                               config.onehot_height_bins,
                                               config.onehot_speed_bins,
-                                              config.onehot_angle_bins)
+                                              config.onehot_angle_bins,
+                                              config.onehot_lon_bins,
+                                              config.onehot_lat_bins)
         # 将重新采样的张量转换为float32类型
         new_sample0 = tf.cast(new_sample0, tf.float32)
 
