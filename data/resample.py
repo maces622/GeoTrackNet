@@ -34,10 +34,12 @@ def resample_flight_data(flight_data):
 
     # resampled_df[['anum', 'fnum']] = resampled_df[['anum', 'fnum']].fillna(method='ffill')
 
+    origin_order=["Time","UTC TIME","anum","fnum","height","speed","angle","longitude","latitude"]
     # 将UTC TIME列移回原来的位置
-    resampled_df.reset_index(inplace=False)
+    resampled_df.reset_index(inplace=True)
+    # resampled_df=resampled_df[origin_order]
     print(resampled_df)
-    # resampled_df = resampled_df[original_columns]
+    resampled_df = resampled_df[original_columns]
     return resampled_df
 
 
@@ -55,5 +57,5 @@ for fn in os.listdir(csv_path):
     csv_file_path=os.path.join(csv_path,fn)
     # print(pd.read_csv(csv_file_path))
     proc_data=resample_flight_data(pd.read_csv(csv_file_path))
-    proc_data.to_csv(os.path.join(resample_path,fn),index=True)
+    proc_data.to_csv(os.path.join(resample_path,fn),index=False)
     

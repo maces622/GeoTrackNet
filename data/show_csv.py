@@ -25,7 +25,7 @@ for fn in os.listdir(csv_path):
             if ct==1:
                 continue
             # print(type(float(row[4])-hgt_min))
-            l_l_msg.append([int(float(row[1])),
+            l_l_msg.append([int(float(row[0])),
                             (bnum),(float(row[4])),
                             (float(row[5])),(float(row[6])),
                             (float(row[7])),(float(row[8]))])
