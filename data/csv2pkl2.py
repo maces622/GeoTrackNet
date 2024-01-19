@@ -2,7 +2,6 @@ import numpy as np
 import os
 import csv
 import pickle
-from sklearn.preprocessing import MinMaxScaler
 
 # from .flags_config    import HEIGHT_MAX
 

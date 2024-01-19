@@ -221,7 +221,7 @@ tf.app.flags.DEFINE_integer("onehot_angle_bins", 72,
                           "Number of equal-width bins of the COG one-hot vector (degree)")
 
 
-tf.app.flags.DEFINE_integer("n_lat_cells", 0,
+tf.app.flags.DEFINE_integer("n_lat_cells", 0,   
                           "Number of lat cells")
 tf.app.flags.DEFINE_integer("n_lon_cells",  0,
                           "Number of lon cells")
@@ -259,8 +259,8 @@ config.data_dim = config.onehot_angle_bins+config.onehot_speed_bins\
                 + config.onehot_height_bins+config.onehot_lat_bins+config.onehot_lon_bins
 
 ## LOCAL THRESHOLDING
-config.n_lat_cells = math.ceil((config.lat_max-config.lat_min)/config.cell_lat_reso)
-config.n_lon_cells = math.ceil((config.lon_max-config.lon_min)/config.cell_lon_reso)
+config.n_lat_cells = math.ceil((config.lat_max-config.lat_min)/config.cell_lat_reso)+2
+config.n_lon_cells = math.ceil((config.lon_max-config.lon_min)/config.cell_lon_reso)+2
 ## LOCAL THRESHOLDING FOR ADB-S DATASETS
 """---------------------------------"""
 config.n_height_cells=math.ceil(HEIGHT_MAX/config.cell_height_reso)

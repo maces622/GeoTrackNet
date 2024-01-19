@@ -29,6 +29,7 @@ Utils for MultitaskAIS.
 
 
 
+from codecs import latin_1_decode
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -46,10 +47,11 @@ geod = Geod(ellps='WGS84')
 #import dataset
 
 AVG_EARTH_RADIUS = 6378.137  # in km
-SPEED_MAX = 30 # knot
+SPEED_MAX = 1120 # KM/H
 FIG_DPI = 150
 
-LAT, LON, SOG, COG, HEADING, ROT, NAV_STT, TIMESTAMP, MMSI = list(range(9))
+TIMESTAMP,BNUM,HEIGHT,SPEED,ANGLE,LON,LAT=list(range(7))
+
 
 def trackOutlier(A):
     """
@@ -152,40 +154,6 @@ def detectOutlier(track, speed_max = SPEED_MAX):
 #===============================================================================
 #===============================================================================   
 # Creating shape file
-def createShapefile(shp_fname, Vs):
-    """
-    Creating AIS shape files
-    INPUT:
-        shp_fname    : name of the shapefile
-        Vs          : AIS data, each element of the dictionary is an AIS track
-                      whose structure is:
-                      [Timestamp, MMSI, Lat, Lon, SOG, COG, Heading, ROT, NAV_STT]
-    """
-    shp = shapefile.Writer(shapefile.POINT)
-    shp.field('MMSI', 'N', 10)
-    shp.field('TIMESTAMP', 'N', 12)
-    shp.field('DATETIME', 'C', 20)
-    shp.field('LAT','N',10,5)
-    shp.field('LON','N',10,5)
-    shp.field('SOG','N', 10,5)
-    shp.field('COG', 'N', 10,5)
-    shp.field('HEADING', 'N', 10,5)
-    shp.field('ROT', 'N', 5)
-    shp.field('NAV_STT', 'N', 2)
-    for mmsi in list(Vs.keys()):
-        for p in Vs[mmsi]:
-            shp.point(p[LON],p[LAT])
-            shp.record(p[MMSI],
-                       p[TIMESTAMP],
-                       time.strftime('%H:%M:%S %d-%m-%Y', time.gmtime(p[TIMESTAMP])),
-                       p[LAT],
-                       p[LON],
-                       p[SOG],
-                       p[COG],
-                       p[HEADING],
-                       p[ROT],
-                       p[NAV_STT])
-    shp.save(shp_fname)
     
 #===============================================================================
 #===============================================================================
@@ -209,7 +177,7 @@ def interpolate(t, track):
         bpos = before_p[-1]    
         # Interpolation
         dt_full = float(track[apos,TIMESTAMP] - track[bpos,TIMESTAMP])
-        if (abs(dt_full) > 2*3600):
+        if (abs(dt_full) > 60):
             return None
         dt_interp = float(t - track[bpos,TIMESTAMP])
         try:
@@ -220,21 +188,14 @@ def interpolate(t, track):
             dist_interp = dist*(dt_interp/dt_full)
             lon_interp, lat_interp, _ = geod.fwd(track[bpos,LON], track[bpos,LAT],
                                                az, dist_interp)
-            speed_interp = (track[apos,SOG] - track[bpos,SOG])*(dt_interp/dt_full) + track[bpos,SOG]
-            course_interp = (track[apos,COG] - track[bpos,COG] )*(dt_interp/dt_full) + track[bpos,COG]
-            heading_interp = (track[apos,HEADING] - track[bpos,HEADING])*(dt_interp/dt_full) + track[bpos,HEADING]  
-            rot_interp = (track[apos,ROT] - track[bpos,ROT])*(dt_interp/dt_full) + track[bpos,ROT]
-            if dt_interp > (dt_full/2):
-                nav_interp = track[apos,NAV_STT]
-            else:
-                nav_interp = track[bpos,NAV_STT]                             
+            speed_interp = (track[apos,SPEED] - track[bpos,SPEED])*(dt_interp/dt_full) + track[bpos,SPEED]
+            course_interp = (track[apos,ANGLE] - track[bpos,ANGLE] )*(dt_interp/dt_full) + track[bpos,ANGLE]
+            HEIGHT_interp = (track[apos,HEIGHT] - track[bpos,HEIGHT])*(dt_interp/dt_full) + track[bpos,HEIGHT]                          
         except:
             return None
-        return np.array([lat_interp, lon_interp,
-                         speed_interp, course_interp, 
-                         heading_interp, rot_interp, 
-                         nav_interp,t,
-                         track[0,MMSI]])
+        return np.array([t,track[0,BNUM],HEIGHT_interp, speed_interp,
+                         course_interp, lon_interp, 
+                         lat_interp])
     else:
         return None
 
@@ -314,8 +275,8 @@ def show_logprob_map(m_map_logprob_mean, m_map_logprob_std, save_dir,
     # plt.subplot(1,2,1)
     im = plt.imshow(np.flipud(m_mean),interpolation=inter_method)
     ax = plt.gca()
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
+    ax.get_xaxis().set_visible(True)
+    ax.get_yaxis().set_visible(True)
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     plt.colorbar(im, cax=cax)
@@ -327,8 +288,8 @@ def show_logprob_map(m_map_logprob_mean, m_map_logprob_std, save_dir,
     # plt.subplot(1,2,2)
     im = plt.imshow(np.flipud(m_std),interpolation=inter_method)
     ax = plt.gca()
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
+    ax.get_xaxis().set_visible(True)
+    ax.get_yaxis().set_visible(True)
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     plt.colorbar(im, cax=cax)
@@ -341,6 +302,7 @@ def show_logprob_map(m_map_logprob_mean, m_map_logprob_std, save_dir,
 def plot_abnormal_tracks(Vs_background,l_dict_anomaly,
                          filepath,
                          lat_min,lat_max,lon_min,lon_max,
+                         onehot_hgt_bins,onehot_spd_bins,onehot_agl_bins,
                          onehot_lat_bins,onehot_lon_bins,
                          background_cmap = "Blues",
                          anomaly_cmap = "autumn",
@@ -359,8 +321,8 @@ def plot_abnormal_tracks(Vs_background,l_dict_anomaly,
         key = l_keys[d_i]
         c = cmap(float(d_i)/(N-1))
         tmp = Vs_background[key]
-        v_lat = tmp[:,0]*lat_range + lat_min
-        v_lon = tmp[:,1]*lon_range + lon_min
+        v_lat = tmp[:,6]*lat_range + lat_min
+        v_lon = tmp[:,5]*lon_range + lon_min
         plt.plot(v_lon,v_lat,color=c,linewidth=0.8)
     plt.xlim([lon_min,lon_max])
     plt.ylim([lat_min,lat_max])
@@ -372,7 +334,7 @@ def plot_abnormal_tracks(Vs_background,l_dict_anomaly,
     try:
         for point in l_coastline_poly:
             poly = np.array(point)
-            plt.plot(poly[:,0],poly[:,1],color="k",linewidth=0.8)
+            plt.plot(poly[:6],poly[:,5],color="k",linewidth=0.8)
     except:
         pass
     
@@ -389,8 +351,8 @@ def plot_abnormal_tracks(Vs_background,l_dict_anomaly,
         tmp = D["seq"]
         m_log_weights_np = D["log_weights"]
         tmp = tmp[12:]
-        v_lat = (tmp[:,0]/float(onehot_lat_bins))*lat_range + lat_min
-        v_lon = ((tmp[:,1]-onehot_lat_bins)/float(onehot_lon_bins))*lon_range + lon_min
-        plt.plot(v_lon,v_lat,color=c,linewidth=1.2) 
-    
+        v_lat = ((tmp[:,4]-onehot_hgt_bins-onehot_spd_bins-onehot_agl_bins-onehot_lon_bins)/float(onehot_lat_bins))*lat_range + lat_min
+        v_lon = ((tmp[:,3]-onehot_hgt_bins-onehot_spd_bins-onehot_agl_bins)/float(onehot_lon_bins))*lon_range + lon_min
+        plt.plot(v_lon,v_lat,color='r',linewidth=1.2) 
+    print(filepath)
     plt.savefig(filepath,dpi = fig_dpi)  

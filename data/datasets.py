@@ -104,7 +104,6 @@ def create_ADB_dataset(dataset_path,
 
     with open(mean_path,"rb") as f:
         mean = pickle.load(f)
-    # print(mean_path,"00000000000000000000000000000000000000000000000")
     def adbtrack_generator():
         for k in list(raw_data.keys()):
             # ::2表示间隔一条数据进行选取。该语句后是选出需要的四个字段。
@@ -118,11 +117,11 @@ def create_ADB_dataset(dataset_path,
     dataset = tf.data.Dataset.from_generator(
                               adbtrack_generator,
                               output_types=(tf.float64, tf.int64, tf.int64, tf.float32, tf.float32))
-    print("------------------------------------------------------------")
     
     print("------------------------------------------------------------")
-    
     print("------------------------------------------------------------")
+    print("------------------------------------------------------------")
+    
     if repeat: dataset = dataset.repeat()
     if shuffle: dataset = dataset.shuffle(num_examples)
     print((dataset))
@@ -138,7 +137,6 @@ def create_ADB_dataset(dataset_path,
                                    padded_shapes=([None, total_bins ], [], [], [], [])
                                   )
     
-
     print(mean)
     def process_ADB_batch(data, lengths, bnum, time_start, time_end):
         """Create mean-centered and time-major next-step prediction Tensors."""
