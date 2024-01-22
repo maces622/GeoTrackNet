@@ -20,8 +20,9 @@ agl_min=360.0
 
 file_cnt=0;
 base_path="./CA_data/"
-pkl_fn="CA1803"
-csv_path=os.path.join(base_path,pkl_fn)
+ds_name="CA1883"
+sub_p=ds_name+"R"
+csv_path=os.path.join(base_path,sub_p)
 
 data_dict={}
 csv_cnt=0
@@ -68,7 +69,7 @@ for fn in os.listdir(csv_path):
             if ct==1:
                 continue
             # print(type(float(row[4])-hgt_min))
-            l_l_msg.append([int(row[0]),
+            l_l_msg.append([int(float(row[0])),
                             (bnum),(float(row[4])-hgt_min)/(hgt_max-hgt_min),
                             (float(row[5])-spd_min)/(spd_max-spd_min),(float(row[6])-agl_min)/(agl_max-agl_min),
                             (float(row[7])-lon_min)/(lon_max-lon_min),(float(row[8])-lat_min)/(lat_max-lat_min)])
@@ -89,8 +90,8 @@ print(spd_max,spd_min)
 print(agl_max,agl_min)
 
 # test_pkl_fn=pkl_fn+"_test.pkl"
-train_pkl_fn=pkl_fn+"_train.pkl"
-valid_pkl_fn=pkl_fn+"_valid.pkl"
+train_pkl_fn=ds_name+"_train.pkl"
+valid_pkl_fn=ds_name+"_valid.pkl"
 
 
 data_keys=list(data_dict.keys())

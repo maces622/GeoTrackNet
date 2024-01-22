@@ -6,7 +6,7 @@ import numpy as np
 
 file_cnt=0
 base_path="./CA_data/"
-pkl_fn="CA1803R"
+pkl_fn="CA1883R"
 csv_path=os.path.join(base_path,pkl_fn)
 data_dict={}
 csv_cnt=0
@@ -47,11 +47,11 @@ for i in range(len(data_dict)):
     now=data_dict[i]
     # print(len(now))
     ext_ts= range(0,len(now))
-    ext_hg=now[:, 6]
+    ext_hg=now[:, 3]
     plt.plot(ext_ts,ext_hg)
     
 # plt.legend()
-plt.title('Flight Altitude Over Time')
+plt.title('SPD Over Time')
 plt.xlabel('Time')
-plt.ylabel('Altitude')
+plt.ylabel('SPD')
 plt.savefig("hgt.png")

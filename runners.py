@@ -217,7 +217,6 @@ def create_eval_graph(inputs, targets, lengths, model, config):
             final_log_weights/tf.to_float(lengths), rnn_state_tf, rnn_latent_tf, rnn_out_tf
 
 def create_dataset_and_model(config, shuffle, repeat):
-
     inputs, targets, bnum, time_starts, time_ends, lengths, mean = datasets.create_ADB_dataset(config.testset_path,
                                                           os.path.join(os.path.dirname(config.trainingset_path),"mean.pkl"),
                                                           config.batch_size,

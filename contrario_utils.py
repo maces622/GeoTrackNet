@@ -35,7 +35,7 @@ import numpy as np
 import operator as op
 from functools import reduce
 
-MAX_SEQUENCE_LENGTH = 60 #4 hours x 6 (time steps = 10 mins)
+MAX_SEQUENCE_LENGTH = 20 #4 hours x 6 (time steps = 10 mins)
 N_EVENT = 0 # number of event
 for ns in range(1,MAX_SEQUENCE_LENGTH+1):
     n_ci = MAX_SEQUENCE_LENGTH-ns+1
@@ -85,11 +85,11 @@ def NFA(ns,k):
     B = 0
     for t in range(k,ns+1):
         B += nCr(ns,t)*(0.1**t)*(0.9**(ns-t))
-    print(B)
-    return 1000*B
+    # print(B)
+    return 55*B
 
 
-def contrario_detection(v_A_,epsilon=0.0091):
+def contrario_detection(v_A_,epsilon):
     """
     A contrario detection algorithms
     INPUT:

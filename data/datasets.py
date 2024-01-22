@@ -113,19 +113,19 @@ def create_ADB_dataset(dataset_path,
             tmp[tmp == 1] = 0.99999
             yield tmp, len(tmp), raw_data[k][0,BNUM], raw_data[k][0,TIMESTAMP], raw_data[k][-1,TIMESTAMP]
             ## tmp是位置有关数据；长度；ADB-S使用bnum作为班次的识别码；开始时间戳；结束时间戳。
-    print("-----------------")
+    # print("-----------------")
     dataset = tf.data.Dataset.from_generator(
                               adbtrack_generator,
                               output_types=(tf.float64, tf.int64, tf.int64, tf.float32, tf.float32))
     
-    print("------------------------------------------------------------")
-    print("------------------------------------------------------------")
-    print("------------------------------------------------------------")
+    # print("------------------------------------------------------------")
+    # print("------------------------------------------------------------")
+    # print("------------------------------------------------------------")
     
     if repeat: dataset = dataset.repeat()
     if shuffle: dataset = dataset.shuffle(num_examples)
-    print((dataset))
-    print("----------xxxxxxxxxxxxxxxxxxxxxxx-----------------------")
+    # print((dataset))
+    # print("----------xxxxxxxxxxxxxxxxxxxxxxx-----------------------")
     # Batch sequences togther, padding them to a common length in time.
     dataset = dataset.map(
             lambda msg_, num_timesteps, bnum, time_start, time_end: tuple(tf.py_func(sparse_ADB_to_dense,
@@ -137,8 +137,10 @@ def create_ADB_dataset(dataset_path,
                                    padded_shapes=([None, total_bins ], [], [], [], [])
                                   )
     
-    print(mean)
+    # print("--------------")
+    # print(len(mean))    
     def process_ADB_batch(data, lengths, bnum, time_start, time_end):
+        # print(len(data))
         """Create mean-centered and time-major next-step prediction Tensors."""
         data = tf.to_float(tf.transpose(data, perm=[1, 0, 2]))
         lengths = tf.to_int32(lengths)

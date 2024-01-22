@@ -46,11 +46,11 @@ def resample_flight_data(flight_data):
 
 file_cnt=0
 base_path="./CA_data/"
-pkl_fn="CA1803C"
-csv_path=os.path.join(base_path,pkl_fn)
+pkl_fn="CA1883"
+csv_path=os.path.join(base_path,pkl_fn+"C")
 data_dict={}
 csv_cnt=0
-resample_path=os.path.join(base_path,"CA1803R")
+resample_path=os.path.join(base_path,pkl_fn+"R")
 bnum=10001
 
 for fn in os.listdir(csv_path):

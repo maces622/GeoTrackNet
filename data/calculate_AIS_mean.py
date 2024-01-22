@@ -28,18 +28,28 @@ Input pipelines script for Tensorflow graph.
 This script is adapted from the original script of FIVO.
 """
 import sys
+import os
+
+# 当前文件的路径
+current_file_path = os.path.dirname(os.path.realpath(__file__))
+
+# 上一层目录的路径
+parent_dir = os.path.dirname(current_file_path)
+
+# 将上一层目录添加到 sys.path
+sys.path.append(parent_dir)
 sys.setrecursionlimit(10000)
 
 import numpy as np
 import pickle
-import os
-import sys
 sys.path.append("./data/")
-dataset_path = "./CA_data/CA1803_train.pkl"
+dataset_path = "./CA_data/CA1883_train.pkl"
 import tensorflow as tf
-
-LAT_BINS = 300; LON_BINS = 300; HEIGHT_BINS = 300; SPEED_BINS=100;ANGLE_BINS = 72
+from flags_config import config
+# LAT_BINS = 300; LON_BINS = 300; HEIGHT_BINS = 300; SPEED_BINS=100;ANGLE_BINS = 72
 #LAT_BINS = 350; LON_BINS = 1050; SOG_BINS = 30; COG_BINS = 72
+LAT_BINS = config.onehot_lat_bins; LON_BINS = config.onehot_lon_bins; HEIGHT_BINS=config.onehot_height_bins; SPEED_BINS=config.onehot_speed_bins
+ANGLE_BINS=config.onehot_angle_bins
 
 def sparse_ADB_to_dense(msgs_,num_timesteps, bnum):
     # 实现论文中提到的four-hot编码
@@ -47,12 +57,13 @@ def sparse_ADB_to_dense(msgs_,num_timesteps, bnum):
     def create_dense_vect(msg,lat_bins = 300, lon_bins = 300, height_bins = 300,speed_bins = 100,angle_bins=72):
         hgt,spd,agl,lon,lat=msg[0],msg[1],msg[2],msg[3],msg[4]
         data_dim = lat_bins + lon_bins + height_bins + speed_bins+angle_bins
+        # print(data_dim)
         dense_vect = np.zeros(data_dim)
         dense_vect[int(hgt*height_bins)] = 1.0
         dense_vect[int(spd*speed_bins) + height_bins] = 1.0
         dense_vect[int(agl*angle_bins) + height_bins + speed_bins] = 1.0
         dense_vect[int(lon*lon_bins) + height_bins + speed_bins + angle_bins] = 1.0
-        dense_vect[int(lat*lon_bins) + height_bins + speed_bins + angle_bins+lon_bins] = 1.0
+        dense_vect[int(lat*lat_bins) + height_bins + speed_bins + angle_bins+lon_bins] = 1.0
         return dense_vect
     msgs_[msgs_ == 1] = 0.999999
     dense_msgs = []
@@ -93,6 +104,7 @@ total_ais_msg = 0
 
 current_mean = np.zeros((0,data_dim))
 current_ais_msg = 0
+print(LAT_BINS,LON_BINS,HEIGHT_BINS,SPEED_BINS,ANGLE_BINS)
 
 count = 0
 # print(Vs)
@@ -102,13 +114,14 @@ for bnum in list(Vs.keys()):
     tmp = Vs[bnum][:,[HEIGHT,SPEED,ANGLE,LON,LAT]]
     # print (tmp)   
     tmp[tmp == 1] = 0.99999
+    # print(tmp)
     current_sparse_matrix,_,_ = sparse_ADB_to_dense(tmp,0,0)
 #    current_mean = np.mean(current_sparse_matrix,axis = 0)
     sum_all += np.sum(current_sparse_matrix,axis = 0)
     total_ais_msg += len(current_sparse_matrix)
 
 mean = sum_all/total_ais_msg
-print(len(mean))
+# print(len(mean))
 with open(dirname + "/mean.pkl","wb") as f:
     pickle.dump(mean,f)
 

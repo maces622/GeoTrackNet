@@ -239,8 +239,8 @@ def gaussian_filter_with_nan(U,sigma):
 #===============================================================================
 #===============================================================================
 def show_logprob_map(m_map_logprob_mean, m_map_logprob_std, save_dir, 
-                     logprob_mean_min = -10.0, logprob_std_max = 5.0,
-                     d_scale = 10, inter_method = "hanning",
+                     logprob_mean_min = 0.0, logprob_std_max = 10.0,
+                     d_scale = 1, inter_method = "hanning",
                      fig_w = 960, fig_h = 960,
                     ):
     """
@@ -354,5 +354,5 @@ def plot_abnormal_tracks(Vs_background,l_dict_anomaly,
         v_lat = ((tmp[:,4]-onehot_hgt_bins-onehot_spd_bins-onehot_agl_bins-onehot_lon_bins)/float(onehot_lat_bins))*lat_range + lat_min
         v_lon = ((tmp[:,3]-onehot_hgt_bins-onehot_spd_bins-onehot_agl_bins)/float(onehot_lon_bins))*lon_range + lon_min
         plt.plot(v_lon,v_lat,color='r',linewidth=1.2) 
-    print(filepath)
+    # print(filepath)
     plt.savefig(filepath,dpi = fig_dpi)  

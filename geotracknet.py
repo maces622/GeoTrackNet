@@ -71,7 +71,36 @@ LOGPROB_MEAN_MIN = -10.0
 LOGPROB_STD_MAX = 5
 
 # done
-
+"""
+python geotracknet.py \
+  --mode=train   \
+  --dataset_dir=./data \
+  --trainingset_name=CA_data/CA1803_train.pkl \
+  --testset_name=CA_data/CA1803_valid.pkl \
+  --lat_min=108.8 \
+  --lat_max=116.6 \
+  --lon_min=18.1 \
+  --lon_max=41.4 \
+  --latent_size=100 \
+  --batch_size=2 \
+  --num_samples=1 \
+  --learning_rate=0.001 \
+"""
+"""
+python geotracknet.py \
+  --mode=contrario_detection   \
+  --dataset_dir=./data \
+  --trainingset_name=CA_data/CA1883_train.pkl \
+  --testset_name=CA_data/CA1883_test.pkl \
+  --lat_min=116.58 \
+  --lat_max=122.1 \
+  --lon_min=30.7 \
+  --lon_max=40.3 \
+  --latent_size=64 \
+  --batch_size=4 \
+  --num_samples=2 \
+  --learning_rate=0.0007 \
+"""
 ## RUN TRAIN
 #======================================
 
@@ -89,9 +118,9 @@ else:
     with open(config.testset_path,"rb") as f:
         Vs_test = pickle.load(f)
     dataset_size = len(Vs_test)
-    print("dataset size:")
-    print(dataset_size)
-    print("------------------")
+    # print("dataset size:")
+    # print(dataset_size)
+    # print("------------------")
     
 ## RUN TASK-SPECIFIC SUBMODEL
 #======================================
@@ -112,6 +141,12 @@ if config.mode in ["save_logprob","traj_reconstruction"]:
     track_sample, track_true, log_weights, ll_per_t, ll_acc,_,_,_\
                                         = runners.create_eval_graph(inputs, targets,
                                                                lengths, model, config)
+    print("------------------------------------")
+    print(inputs, targets, bnum, time_starts, time_ends, lengths, model)
+    print("------------------------------------")
+
+    print("------------------------------------")
+
     saver = tf.train.Saver()
     sess = tf.train.SingularMonitoredSession()
     runners.wait_for_checkpoint(saver, sess, config.logdir)
@@ -159,28 +194,19 @@ if config.mode == "save_logprob":
     Calculate and save log[p(x_t|h_t)] of each track in the test set.
     """
     l_dict = []
+    print(dataset_size,config.batch_size)
+    print("---------------")
     for d_i in tqdm(list(range(math.ceil(dataset_size/config.batch_size)))):
-        inp, tar, bnum, t_start, t_end, seq_len, log_weights_np, true_np, ll_t =\
+        inp, tar, bnum1, t_start, t_end, seq_len, log_weights_np, true_np, ll_t =\
                  sess.run([inputs, targets, bnum, time_starts, time_ends, lengths, log_weights, track_true, ll_per_t])
         for d_idx_inbatch in range(inp.shape[1]):
             print("------")
             D = dict()
             seq_len_d = seq_len[d_idx_inbatch]
-            # nonzero_indices = np.nonzero(tar[:seq_len_d,d_idx_inbatch,:])[1]
-            # # 确保非零元素数量是5的倍数
-            # num_elements = len(nonzero_indices)
-            # num_to_remove = num_elements % 5
-            # if num_to_remove != 0:
-            #     nonzero_indices = nonzero_indices[:-num_to_remove]
-
-            # # 重塑数组
-            # reshaped_array = nonzero_indices.reshape(-1, 5)
-            # print(reshaped_array)
-            # # 然后将 reshaped_array 存入字典 D 的 "seq" 键中
             D["seq"] = np.nonzero(tar[:seq_len_d,d_idx_inbatch,:])[1].reshape(-1,5)
             D["t_start"] = t_start[d_idx_inbatch]
             D["t_end"] = t_end[d_idx_inbatch]
-            D["bnum"] = bnum[d_idx_inbatch]
+            D["bnum"] = bnum1[d_idx_inbatch]
             D["log_weights"] = log_weights_np[:seq_len_d,:,d_idx_inbatch]
             #
             # print(D["log_weights"])
@@ -205,7 +231,7 @@ if config.mode == "save_logprob":
 
     d_mean = np.mean(v_logprob)
     d_std = np.std(v_logprob)
-    d_thresh = d_mean - 3*d_std
+    d_thresh = d_mean - 1*d_std
 
     plt.figure(figsize=(1920/FIG_DPI, 640/FIG_DPI), dpi=FIG_DPI)
     plt.plot(v_logprob,'o')
@@ -231,7 +257,67 @@ if config.mode == "save_logprob":
 #===============================================================================
 # 调试程序
 #===============================================================================
+elif config.mode == "local_logprob":
+    """ LOCAL THRESHOLD
 
+    """
+    # Init
+    m_map_logprob_std = np.zeros(shape=(config.n_lat_cells,config.n_lon_cells))
+    m_map_logprob_mean = np.zeros(shape=(config.n_lat_cells,config.n_lon_cells))
+    m_map_density = np.zeros(shape=(config.n_lat_cells,config.n_lon_cells))
+    v_logprob = np.empty((0,))
+    v_bnum = np.empty((0,))
+    Map_logprob = dict()
+    for row  in range(config.n_lat_cells):
+        for col in range(config.n_lon_cells):
+            Map_logprob[ str(str(row)+","+str(col))] = []
+    
+    # Load logprob
+    with open(outputs_path,"rb") as f:
+        l_dict = pickle.load(f)
+    print(outputs_path)
+    print("Calculating the logprob map...")
+    for D in tqdm(l_dict):
+        tmp = D["seq"]
+        log_weights_np = D["log_weights"]
+        print("log_w")
+        print(config.n_lon_cells,config.n_lat_cells)
+        # print(len(log_weights_np))
+        # print(type(log_weights_np))
+        # print(log_weights_np)
+        for d_timestep in range(2*6,len(tmp)):
+            try:
+                row = int((tmp[d_timestep,4]-config.onehot_height_bins-config.onehot_speed_bins-config.onehot_angle_bins-config.onehot_lon_bins)*config.onehot_lat_reso/config.cell_lat_reso)
+                col = int((tmp[d_timestep,3]-config.onehot_height_bins-config.onehot_speed_bins-config.onehot_angle_bins)*config.onehot_lon_reso/config.cell_lon_reso)
+                Map_logprob[str(row )+","+str(col)].append(np.mean(log_weights_np[d_timestep,:]))
+                # print(Map_logprob[str(row )+","+str(col)])
+            except:
+                continue
+
+    # Remove outliers
+    for row  in range(config.n_lat_cells):
+        for col in range(config.n_lon_cells):
+            s_key = str(row)+","+str(col) 
+            if len(np.array(Map_logprob[s_key])):
+                Map_logprob[s_key] = utils.remove_gaussian_outlier(np.array(Map_logprob[s_key]))
+            # print(np.array(Map_logprob[s_key]))
+                m_map_logprob_mean[row,col] = np.mean(Map_logprob[s_key])
+                m_map_logprob_std[row,col] = np.std(Map_logprob[s_key])
+                m_map_density[row,col] = len(Map_logprob[s_key])
+    
+    # Save to disk
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    np.save(save_dir+"map_density-"+str(config.cell_lat_reso)+"-"+str(config.cell_lon_reso),m_map_density)
+    with open(os.path.join(save_dir,"Map_logprob-"+str(config.cell_lat_reso)+"-"+str(config.cell_lon_reso)+".pkl"),"wb") as f:
+        pickle.dump(Map_logprob,f)
+    
+    # Show the map
+    utils.show_logprob_map(m_map_logprob_mean, m_map_logprob_std, save_dir, 
+                           logprob_mean_min = LOGPROB_MEAN_MIN,
+                           logprob_std_max = LOGPROB_STD_MAX,
+                           fig_w = FIG_W, fig_h = FIG_H,
+                          )    
 
 #===============================================================================
 #===============================================================================
@@ -259,8 +345,11 @@ elif config.mode == "contrario_detection":
     length_track = len(l_dict[0]["seq"])
     l_dict_anomaly = []
     n_error = 0
+
     for D in tqdm(l_dict):
         try:
+            NCT=0
+            ACT=0
         # if True:
             tmp = D["seq"]
             m_log_weights_np = D["log_weights"]
@@ -268,13 +357,15 @@ elif config.mode == "contrario_detection":
             v_A = np.zeros(len(tmp))
             # print(tmp)
             for d_timestep in range(2*6,len(tmp)):
+
                 # print(d_timestep)
                 # print(config.cell_lat_reso,config.cell_lon_reso)
-                d_row = int((tmp[d_timestep,4]-config.onehot_height_bins-config.onehot_speed_bins-config.onehot_angle_bins-config.onehot_lon_bins)*(8.0/300.0)/config.cell_lat_reso)
-                d_col = int((tmp[d_timestep,3]-config.onehot_height_bins-config.onehot_speed_bins-config.onehot_angle_bins)*(22.0/300.0)/config.cell_lon_reso)
+                d_row = int((tmp[d_timestep,4]-config.onehot_height_bins-config.onehot_speed_bins-config.onehot_angle_bins-config.onehot_lon_bins)*(config.onehot_lat_reso)/config.cell_lat_reso)
+                d_col = int((tmp[d_timestep,3]-config.onehot_height_bins-config.onehot_speed_bins-config.onehot_angle_bins)*(config.onehot_lon_reso)/config.cell_lon_reso)
                 # d_row = int(tmp[d_timestep,0]*config.onehot_lat_reso/config.cell_lat_reso)
                 # d_col = int((tmp[d_timestep,1]-config.onehot_lat_bins)*config.onehot_lon_reso/config.cell_lon_reso)
                 d_logprob_t = np.mean(m_log_weights_np[d_timestep,:])
+                # print(d_logprob_t)
                 # print(d_row,d_col)
                 # KDE
                 l_local_log_prod = Map_logprob[str(d_row)+","+str(d_col)]
@@ -283,14 +374,20 @@ elif config.mode == "contrario_detection":
                 else:
                     kernel = stats.gaussian_kde(l_local_log_prod)
                     cdf = kernel.integrate_box_1d(-np.inf,d_logprob_t)
-                    if cdf < 0.05:
+                    if cdf < 0.01:
                         v_A[d_timestep] = 1
+                        ACT=ACT+1
+                        # print("A")
+                    else:
+                        NCT=NCT+1
+                        # print("N")
+            print(float(ACT/(ACT+NCT)))
             v_A = v_A[12:]
             v_anomalies = np.zeros(len(v_A))
-            for d_i_4h in range(0,len(v_A)+1-60):
-                v_A_4h = v_A[d_i_4h:d_i_4h+60]
-                v_anomalies_i = contrario_utils.contrario_detection(v_A_4h,config.contrario_eps)
-                v_anomalies[d_i_4h:d_i_4h+60][v_anomalies_i==1] = 1
+            for d_i_len in range(0,len(v_A)+1-10):
+                v_A_d = v_A[d_i_len:d_i_len+10]
+                v_anomalies_i = contrario_utils.contrario_detection(v_A_d,0.000000001)
+                v_anomalies[d_i_len:d_i_len+10][v_anomalies_i==1] = 1
 
             if len(contrario_utils.nonzero_segments(v_anomalies)) > 0:
                 D["anomaly_idx"] = v_anomalies

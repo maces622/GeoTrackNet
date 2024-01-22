@@ -7,9 +7,9 @@ from datetime import datetime, timedelta
 import pandas as pd
 file_cnt=0
 base_path="./CA_data/"
-pkl_fn="CA1803"
+pkl_fn="CA1883"
 csv_path=os.path.join(base_path,pkl_fn)
-clean_path=os.path.join(base_path,"CA1803C")
+clean_path=os.path.join(base_path,pkl_fn+"C")
 
 clean_loc="height"
 pm=6;
